@@ -1,0 +1,1720 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>代購試算 | Korea Proxy</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600&family=Noto+Sans+KR:wght@300;400;500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F7F5F3;
+    --surface: #FDFCFB;
+    --surface2: #F1EDED;
+    --ink: #1C1818;
+    --ink-light: #6E6363;
+    --ink-xlight: #B5ADAD;
+    --rose: #C47D8A;
+    --rose-light: #D4A0AA;
+    --rose-pale: #F5E8EB;
+    --coral: #D4856A;
+    --coral-pale: #F5EDE8;
+    --green: #3D6B4F;
+    --green-pale: #E8F0EB;
+    --red: #8B3A3A;
+    --red-pale: #F5E8E8;
+    --amber: #8B6914;
+    --amber-pale: #F5EDD6;
+    --border: #E4DCDC;
+    --border-light: #EDE6E6;
+    --radius: 2px;
+    --radius-lg: 6px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 32px; height: 56px;
+  }
+  .nav-brand {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 15px; letter-spacing: 0.08em; color: var(--ink);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .nav-brand span { color: var(--rose); font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; font-family: 'Noto Sans KR', sans-serif; }
+  .nav-tabs { display: flex; gap: 2px; }
+  .nav-tab {
+    padding: 6px 20px; font-size: 12px; letter-spacing: 0.08em;
+    border: 1px solid transparent; cursor: pointer;
+    background: none; color: var(--ink-light);
+    font-family: 'Noto Sans KR', sans-serif;
+    transition: all 0.2s; border-radius: var(--radius);
+  }
+  .nav-tab.active { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+  .nav-tab:not(.active):hover { color: var(--ink); border-color: var(--border); }
+
+  /* ── LAYOUT ── */
+  .page { display: none; padding-top: 56px; min-height: 100vh; }
+  .page.active { display: block; }
+
+  /* ── PROGRESS BAR ── */
+  .progress-bar-wrap {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 14px 32px; display: flex; align-items: center; gap: 20px;
+  }
+  .progress-label { font-size: 11px; letter-spacing: 0.1em; color: var(--ink-light); white-space: nowrap; }
+  .progress-track { flex: 1; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--rose); border-radius: 2px; transition: width 0.5s ease; }
+  .progress-pct { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--rose); }
+  .progress-amounts { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--ink-light); white-space: nowrap; }
+
+  /* ── MAIN ── */
+  .main { max-width: 1100px; margin: 0 auto; padding: 32px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  @media (max-width: 800px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 24px;
+  }
+  .card-title {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-light); margin-bottom: 20px;
+    padding-bottom: 12px; border-bottom: 1px solid var(--border-light);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card-title::before {
+    content: ''; width: 3px; height: 13px;
+    background: var(--rose); display: inline-block;
+  }
+
+  /* ── FORM ── */
+  .field { margin-bottom: 16px; }
+  .field label {
+    display: block; font-size: 11px; letter-spacing: 0.1em;
+    color: var(--ink-light); margin-bottom: 6px; text-transform: uppercase;
+  }
+  .field input, .field select, .field textarea {
+    width: 100%; padding: 10px 12px;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: var(--radius); color: var(--ink);
+    font-family: 'Noto Sans KR', sans-serif; font-size: 14px;
+    outline: none; transition: border-color 0.2s;
+  }
+  .field input:focus, .field select:focus { border-color: var(--rose); background: var(--surface); }
+  .field input[type="number"] { font-family: 'DM Mono', monospace; }
+
+  /* computed cost display */
+  .computed-cost {
+    padding: 10px 12px; background: var(--green-pale);
+    border: 1px solid var(--border); border-radius: var(--radius);
+    font-family: 'DM Mono', monospace; font-size: 14px; color: var(--green);
+  }
+
+  .toggle-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 0; border-bottom: 1px solid var(--border-light);
+  }
+  .toggle-row:last-child { border-bottom: none; }
+  .toggle-label { font-size: 13px; color: var(--ink); }
+  .toggle-sub { font-size: 11px; color: var(--ink-light); }
+  .toggle {
+    position: relative; width: 40px; height: 22px;
+    background: var(--border); border-radius: 11px; cursor: pointer;
+    transition: background 0.2s; flex-shrink: 0;
+  }
+  .toggle.on { background: var(--rose); }
+  .toggle::after {
+    content: ''; position: absolute; top: 3px; left: 3px;
+    width: 16px; height: 16px; background: white; border-radius: 50%;
+    transition: left 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  }
+  .toggle.on::after { left: 21px; }
+
+  /* ── CATEGORY PILLS ── */
+  .cat-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
+  .cat-pill {
+    padding: 7px 14px; border: 1px solid var(--border); border-radius: 20px;
+    font-size: 12px; cursor: pointer; color: var(--ink-light);
+    transition: all 0.15s; user-select: none; background: var(--surface);
+  }
+  .cat-pill:hover { border-color: var(--rose-light); color: var(--ink); }
+  .cat-pill.selected { background: var(--rose-pale); border-color: var(--rose); color: var(--rose); }
+
+  /* ── DAISO TABS ── */
+  .daiso-wrap { margin-top: 4px; }
+  .daiso-tabs { display: flex; gap: 0; margin-bottom: 12px; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .daiso-tab {
+    flex: 1; padding: 8px; text-align: center; font-size: 12px;
+    cursor: pointer; background: var(--bg); color: var(--ink-light);
+    transition: all 0.15s; border: none; font-family: 'Noto Sans KR', sans-serif;
+  }
+  .daiso-tab.active { background: var(--rose); color: white; }
+  .daiso-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .daiso-btn {
+    padding: 10px 6px; border: 1px solid var(--border); border-radius: var(--radius);
+    background: var(--surface); cursor: pointer; text-align: center;
+    transition: all 0.15s; font-family: 'Noto Sans KR', sans-serif;
+  }
+  .daiso-btn:hover { border-color: var(--rose-light); background: var(--rose-pale); }
+  .daiso-btn.selected { border-color: var(--rose); background: var(--rose-pale); }
+  .daiso-btn .d-krw { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--ink); font-weight: 500; }
+  .daiso-btn .d-twd { font-size: 11px; color: var(--rose); font-family: 'DM Mono', monospace; }
+  .daiso-manual { display: none; }
+  .daiso-manual.show { display: block; }
+
+  /* ── RESULT PANEL ── */
+  .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .result-item { padding: 14px; background: var(--bg); border-radius: var(--radius); }
+  .result-item.full { grid-column: 1 / -1; }
+  .result-item.refund-item { background: var(--green-pale); border: 1px solid #b8d8c4; }
+  .result-item label {
+    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-light); display: block; margin-bottom: 4px;
+  }
+  .result-item.refund-item label { color: var(--green); }
+  .result-item .val { font-family: 'DM Mono', monospace; font-size: 20px; color: var(--ink); }
+  .result-item .val.highlight { color: var(--coral); font-size: 24px; }
+  .result-item .val.positive { color: var(--green); }
+  .result-item .val.negative { color: var(--red); }
+  .result-item .refund-saving { font-size: 11px; color: var(--green); margin-top: 4px; }
+
+  /* ── SHOPEE BLOCK ── */
+  .shopee-block {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 18px; margin-top: 16px;
+  }
+  .shopee-header {
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-light); margin-bottom: 14px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .shopee-rows { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .shopee-item { padding: 10px; background: var(--surface); border-radius: var(--radius); }
+  .shopee-item label { font-size: 10px; letter-spacing: 0.1em; color: var(--ink-light); display: block; margin-bottom: 3px; }
+  .shopee-item .val { font-family: 'DM Mono', monospace; font-size: 15px; }
+  .shopee-verdict {
+    margin-top: 12px; padding: 10px 14px; border-radius: var(--radius);
+    font-size: 12px; letter-spacing: 0.05em; font-weight: 500;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .shopee-verdict.ok { background: var(--green-pale); color: var(--green); }
+  .shopee-verdict.warn { background: var(--amber-pale); color: var(--amber); }
+  .shopee-verdict.bad { background: var(--red-pale); color: var(--red); }
+
+  /* ── WHOLESALE RESULT ── */
+  .ws-market-tag {
+    margin-top: 10px; padding: 8px 12px; border-radius: var(--radius);
+    font-size: 12px; display: flex; align-items: center; gap: 6px;
+  }
+  .ws-market-tag.ok { background: var(--green-pale); color: var(--green); }
+  .ws-market-tag.bad { background: var(--red-pale); color: var(--red); }
+
+  /* ── BTN ── */
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 11px 22px; border-radius: var(--radius); cursor: pointer;
+    font-family: 'Noto Sans KR', sans-serif; font-size: 12px;
+    letter-spacing: 0.08em; border: none; transition: all 0.2s;
+  }
+  .btn-primary { background: var(--ink); color: var(--surface); }
+  .btn-primary:hover { background: #2d2828; }
+  .btn-rose { background: var(--rose); color: white; }
+  .btn-rose:hover { background: var(--rose-light); }
+  .btn-outline { background: none; border: 1px solid var(--border); color: var(--ink-light); }
+  .btn-outline:hover { border-color: var(--ink); color: var(--ink); }
+  .btn-sm { padding: 6px 12px; font-size: 11px; }
+  .btn-row { display: flex; gap: 10px; margin-top: 20px; }
+
+  /* ── PURCHASE PAGE ── */
+  .purchase-header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 20px 32px; display: flex; align-items: flex-start; gap: 40px;
+  }
+  .total-display .label { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-light); }
+  .total-display .amount-krw { font-family: 'DM Mono', monospace; font-size: 28px; color: var(--ink); line-height: 1.2; }
+  .total-display .amount-twd { font-family: 'DM Mono', monospace; font-size: 16px; color: var(--rose); }
+  .total-summary { display: flex; gap: 32px; margin-left: auto; align-items: center; }
+  .summary-item { text-align: right; }
+  .summary-item .s-label { font-size: 10px; letter-spacing: 0.1em; color: var(--ink-xlight); text-transform: uppercase; }
+  .summary-item .s-val { font-family: 'DM Mono', monospace; font-size: 14px; color: var(--ink); }
+
+  /* ── TABLE ── */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    padding: 10px 14px; text-align: left;
+    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-light); border-bottom: 1px solid var(--border);
+    font-weight: 400; background: var(--surface);
+  }
+  tbody tr { border-bottom: 1px solid var(--border-light); transition: background 0.15s; }
+  tbody tr:hover { background: var(--surface2); }
+  tbody td { padding: 12px 14px; font-size: 13px; }
+  tbody td.mono { font-family: 'DM Mono', monospace; font-size: 12px; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; letter-spacing: 0.06em; }
+  .badge-modified { background: var(--amber-pale); color: var(--amber); }
+  .badge-ws { background: var(--rose-pale); color: var(--rose); }
+
+  .qty-input {
+    width: 64px; padding: 5px 8px; text-align: center;
+    border: 1px solid var(--border); border-radius: var(--radius);
+    font-family: 'DM Mono', monospace; font-size: 13px;
+    background: var(--bg); color: var(--ink); outline: none;
+  }
+  .qty-input:focus { border-color: var(--rose); }
+  .edit-btn {
+    background: none; border: 1px solid var(--border-light); border-radius: var(--radius);
+    padding: 4px 10px; font-size: 11px; color: var(--ink-light); cursor: pointer;
+    transition: all 0.15s;
+  }
+  .edit-btn:hover { border-color: var(--rose); color: var(--rose); }
+
+  /* ── DIVIDER ── */
+  .divider { height: 1px; background: var(--border-light); margin: 20px 0; }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; z-index: 200;
+    background: rgba(28,24,24,0.5); backdrop-filter: blur(2px);
+    align-items: center; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface); border-radius: var(--radius-lg);
+    border: 1px solid var(--border); padding: 28px; width: 420px; max-width: 90vw;
+  }
+  .modal-title {
+    font-family: 'Noto Serif KR', serif; font-size: 16px;
+    margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border-light);
+  }
+
+  /* ── EMPTY STATE ── */
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--ink-xlight); }
+  .empty-state .icon { font-size: 40px; margin-bottom: 12px; opacity: 0.4; }
+  .empty-state p { font-size: 13px; letter-spacing: 0.05em; }
+
+  /* ── GS CONFIG ── */
+  .gs-notice {
+    background: var(--rose-pale); border: 1px solid var(--rose-light);
+    border-radius: var(--radius); padding: 12px 16px;
+    font-size: 12px; color: var(--rose); margin-top: 12px; line-height: 1.7;
+  }
+
+  /* ── UTILITIES ── */
+  .text-rose { color: var(--rose); }
+  .text-coral { color: var(--coral); }
+  .text-green { color: var(--green); }
+  .text-red { color: var(--red); }
+  .text-muted { color: var(--ink-light); }
+  .font-mono { font-family: 'DM Mono', monospace; }
+  .mt8 { margin-top: 8px; }
+  .mt16 { margin-top: 16px; }
+
+  .section-divider {
+    display: flex; align-items: center; gap: 12px; margin: 8px 0 16px;
+    font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--ink-xlight);
+  }
+  .section-divider::before, .section-divider::after {
+    content: ''; flex: 1; height: 1px; background: var(--border-light);
+  }
+
+  /* ── CUSTOM RATE ROW ── */
+  .custom-rate-row {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+    background: var(--rose-pale); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 10px 14px;
+  }
+  .custom-rate-row label { font-size: 11px; letter-spacing: 0.1em; color: var(--ink-light); text-transform: uppercase; white-space: nowrap; margin: 0; }
+  .custom-rate-row input {
+    width: 80px; padding: 6px 10px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--radius);
+    font-family: 'DM Mono', monospace; font-size: 14px; color: var(--ink);
+    outline: none;
+  }
+  .custom-rate-row input:focus { border-color: var(--rose); }
+  .custom-rate-row span { font-size: 13px; color: var(--ink-light); }
+  .custom-rate-note { font-size: 11px; color: var(--ink-xlight); margin-left: auto; }
+
+  /* ── REFUND ROW ── */
+  .refund-rate-row {
+    display: flex; align-items: center; gap: 10px; margin-top: 8px; margin-bottom: 4px;
+    background: var(--green-pale); border: 1px solid #b8d8c4; border-radius: var(--radius);
+    padding: 10px 14px;
+  }
+  .refund-rate-row label { font-size: 11px; letter-spacing: 0.1em; color: var(--green); text-transform: uppercase; white-space: nowrap; margin: 0; }
+  .refund-rate-row input {
+    width: 80px; padding: 6px 10px; background: var(--surface);
+    border: 1px solid #b8d8c4; border-radius: var(--radius);
+    font-family: 'DM Mono', monospace; font-size: 14px; color: var(--green);
+    outline: none;
+  }
+  .refund-rate-row input:focus { border-color: var(--green); }
+  .refund-rate-row span { font-size: 12px; color: var(--green); }
+
+  /* purchase section header */
+  .section-head {
+    font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--ink-light); padding: 16px 0 8px;
+    border-bottom: 1px solid var(--border-light); margin-bottom: 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-head::before { content:''; width:3px; height:11px; background: var(--rose); display:inline-block; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">
+    代購試算
+    <span>Korea Proxy</span>
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="switchPage('quote', this)">報價計算</button>
+    <button class="nav-tab" onclick="switchPage('purchase', this)">採買清單</button>
+    <button class="nav-tab" onclick="switchPage('config', this)">設定</button>
+  </div>
+</nav>
+
+<!-- ═══════════════════════ PAGE: QUOTE ═══ -->
+<div class="page active" id="page-quote">
+
+  <div class="progress-bar-wrap">
+    <span class="progress-label">成本回收進度</span>
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <span class="progress-pct" id="progressPct">0%</span>
+    <span class="progress-amounts" id="progressAmounts">NT$0 / NT$0</span>
+  </div>
+
+  <div class="main">
+    <div class="grid-2">
+
+      <!-- 左：輸入 -->
+      <div>
+        <div class="card">
+          <div class="card-title">商品資訊</div>
+
+          <div class="field">
+            <label>品類</label>
+            <div class="cat-pills" id="catPills">
+              <div class="cat-pill" data-cat="Olive Young" onclick="selectCat(this)">Olive Young</div>
+              <div class="cat-pill" data-cat="藥局醫美" onclick="selectCat(this)">藥局醫美</div>
+              <div class="cat-pill" data-cat="韓系潮牌" onclick="selectCat(this)">韓系潮牌</div>
+              <div class="cat-pill" data-cat="專櫃精品" onclick="selectCat(this)">專櫃精品</div>
+              <div class="cat-pill" data-cat="電器3C" onclick="selectCat(this)">電器 3C</div>
+              <div class="cat-pill" data-cat="食品零食" onclick="selectCat(this)">食品零食</div>
+              <div class="cat-pill" data-cat="文創周邊" onclick="selectCat(this)">文創周邊</div>
+              <div class="cat-pill" data-cat="韓國大創" onclick="selectCat(this)">韓國大創</div>
+              <div class="cat-pill" data-cat="批發" onclick="selectCat(this)">批發</div>
+              <div class="cat-pill" data-cat="其他小物" onclick="selectCat(this)">其他小物</div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>商品名稱</label>
+            <input type="text" id="itemName" placeholder="例：COSRX 蝸牛精華 100ml">
+          </div>
+
+          <!-- 一般品類 -->
+          <div id="normalFields">
+            <!-- 自訂加成% -->
+            <div class="custom-rate-row">
+              <label>加成比例</label>
+              <input type="number" id="customRate" min="0" max="999" step="1" placeholder="35" oninput="calc()">
+              <span>%</span>
+              <span class="custom-rate-note" id="customRateNote">品類預設</span>
+            </div>
+
+            <div class="field">
+              <label>韓元售價（₩）</label>
+              <input type="number" id="krwPrice" placeholder="0" oninput="calc()">
+            </div>
+
+            <div class="field">
+              <label>當日匯率（₩1 = NT$?）</label>
+              <input type="number" id="rate" step="0.001" placeholder="0.023" oninput="calc()">
+            </div>
+
+            <div id="weightRow" class="field" style="display:none">
+              <label>重量（kg）— 韓國直送模式</label>
+              <input type="number" id="weight" step="0.1" placeholder="0.5" oninput="calc()">
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="toggle-row">
+              <div>
+                <div class="toggle-label">大體積</div>
+                <div class="toggle-sub">無法壓縮的商品，加收空間費</div>
+              </div>
+              <div class="toggle" id="toggleBulky" onclick="toggleSwitch('toggleBulky'); calc()"></div>
+            </div>
+            <div class="toggle-row">
+              <div>
+                <div class="toggle-label">急件</div>
+                <div class="toggle-sub">額外 +10%</div>
+              </div>
+              <div class="toggle" id="toggleUrgent" onclick="toggleSwitch('toggleUrgent'); calc()"></div>
+            </div>
+            <div class="toggle-row">
+              <div>
+                <div class="toggle-label">退稅</div>
+                <div class="toggle-sub">套用退稅係數，降低計算成本</div>
+              </div>
+              <div class="toggle" id="toggleRefund" onclick="toggleSwitch('toggleRefund'); onRefundToggle()"></div>
+            </div>
+            <div id="refundFactorWrap" style="display:none">
+              <div class="refund-rate-row">
+                <label>退稅係數</label>
+                <input type="number" id="refundFactor" min="0.5" max="1" step="0.01" value="0.92" oninput="calc()">
+                <span>（退稅後成本 = ₩ × 匯率 × 係數）</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 韓國大創 -->
+          <div id="daisoFields" style="display:none">
+            <div class="daiso-wrap">
+              <div class="daiso-tabs">
+                <button class="daiso-tab active" onclick="switchDaisoMode('preset', this)">選區間</button>
+                <button class="daiso-tab" onclick="switchDaisoMode('manual', this)">自行輸入</button>
+              </div>
+
+              <!-- 預設區間 -->
+              <div id="daisoPreset">
+                <div class="daiso-grid">
+                  <div class="daiso-btn" data-krw="500" data-price="39" onclick="selectDaiso(this)">
+                    <div class="d-krw">₩500</div>
+                    <div class="d-twd">→ NT$39</div>
+                  </div>
+                  <div class="daiso-btn" data-krw="1000" data-price="49" onclick="selectDaiso(this)">
+                    <div class="d-krw">₩1,000</div>
+                    <div class="d-twd">→ NT$49</div>
+                  </div>
+                  <div class="daiso-btn" data-krw="1500" data-price="59" onclick="selectDaiso(this)">
+                    <div class="d-krw">₩1,500</div>
+                    <div class="d-twd">→ NT$59</div>
+                  </div>
+                  <div class="daiso-btn" data-krw="2000" data-price="79" onclick="selectDaiso(this)">
+                    <div class="d-krw">₩2,000</div>
+                    <div class="d-twd">→ NT$79</div>
+                  </div>
+                  <div class="daiso-btn" data-krw="3000" data-price="115" onclick="selectDaiso(this)">
+                    <div class="d-krw">₩3,000</div>
+                    <div class="d-twd">→ NT$115</div>
+                  </div>
+                  <div class="daiso-btn" data-krw="5000" data-price="179" onclick="selectDaiso(this)">
+                    <div class="d-krw">₩5,000</div>
+                    <div class="d-twd">→ NT$179</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 手動輸入 -->
+              <div id="daisoManual" class="daiso-manual">
+                <div class="custom-rate-row" style="margin-top:8px">
+                  <label>加成比例</label>
+                  <input type="number" id="daisoCustomRate" min="0" step="1" placeholder="30" oninput="calcDaiso()">
+                  <span>%</span>
+                </div>
+                <div class="field">
+                  <label>韓元售價（₩）</label>
+                  <input type="number" id="daisoKrw" placeholder="0" oninput="calcDaiso()">
+                </div>
+                <div class="field">
+                  <label>當日匯率（₩1 = NT$?）</label>
+                  <input type="number" id="daisoRate" step="0.001" placeholder="0.023" oninput="calcDaiso()">
+                </div>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+            <div class="toggle-row">
+              <div>
+                <div class="toggle-label">急件</div>
+                <div class="toggle-sub">額外 +10%</div>
+              </div>
+              <div class="toggle" id="toggleDaisoUrgent" onclick="toggleSwitch('toggleDaisoUrgent'); calcDaiso()"></div>
+            </div>
+            <!-- 大創退稅 toggle -->
+            <div class="toggle-row">
+              <div>
+                <div class="toggle-label">退稅</div>
+                <div class="toggle-sub">自行輸入：套用退稅係數；選區間：僅更新毛利</div>
+              </div>
+              <div class="toggle" id="toggleDaisoRefund" onclick="toggleSwitch('toggleDaisoRefund'); onDaisoRefundToggle()"></div>
+            </div>
+            <div id="daisoRefundFactorWrap" style="display:none">
+              <div class="refund-rate-row">
+                <label>退稅係數</label>
+                <input type="number" id="daisoRefundFactor" min="0.5" max="1" step="0.01" value="0.92" oninput="calcDaiso()">
+                <span>（退稅後成本 = ₩ × 匯率 × 係數）</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 批發（韓元進貨） -->
+          <div id="wholesaleFields" style="display:none">
+            <div class="field">
+              <label>韓元進貨成本（₩）</label>
+              <input type="number" id="wsKrw" placeholder="0" oninput="calcWholesale()">
+            </div>
+            <div class="field">
+              <label>當日匯率（₩1 = NT$?）</label>
+              <input type="number" id="wsRate" step="0.001" placeholder="0.023" oninput="calcWholesale()">
+            </div>
+            <div class="field">
+              <label>台幣成本（自動換算）</label>
+              <div class="computed-cost" id="wsComputedCost">—</div>
+            </div>
+            <div class="field">
+              <label>台灣市價（NT$）</label>
+              <input type="number" id="wsMarket" placeholder="0" oninput="calcWholesale()">
+            </div>
+            <div class="field">
+              <label>你的販售價格（NT$）</label>
+              <input type="number" id="wsPrice" placeholder="0" oninput="calcWholesale()">
+            </div>
+          </div>
+
+          <div class="field mt16">
+            <label>備註（選填）</label>
+            <input type="text" id="itemNote" placeholder="店名、規格、顏色…">
+          </div>
+
+          <div class="btn-row">
+            <button class="btn btn-primary" onclick="submitQuote()">確認加入 →</button>
+            <button class="btn btn-outline" onclick="clearForm()">清除</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右：輸出 -->
+      <div>
+        <div class="card">
+          <div class="card-title">試算結果</div>
+          <div id="resultEmpty" class="empty-state">
+            <div class="icon">₩</div>
+            <p>輸入商品資訊後<br>即時顯示報價</p>
+          </div>
+          <div id="resultContent" style="display:none">
+            <div class="result-grid">
+              <div class="result-item" id="rCostRow">
+                <label id="rCostLabel">台幣成本</label>
+                <div class="val" id="rCost">—</div>
+              </div>
+              <!-- 退稅後成本（退稅開啟時顯示） -->
+              <div class="result-item refund-item" id="rRefundRow" style="display:none">
+                <label>退稅後成本</label>
+                <div class="val" id="rRefundCost" style="color:var(--green)">—</div>
+                <div class="refund-saving" id="rRefundSaving"></div>
+              </div>
+              <div class="result-item" id="rServiceRow">
+                <label>服務費</label>
+                <div class="val" id="rService">—</div>
+              </div>
+              <div class="result-item full">
+                <label>建議售價（5的倍數）</label>
+                <div class="val highlight" id="rPrice">—</div>
+              </div>
+              <div class="result-item">
+                <label>毛利</label>
+                <div class="val positive" id="rProfit">—</div>
+              </div>
+              <div class="result-item">
+                <label>毛利率</label>
+                <div class="val positive" id="rMargin">—</div>
+              </div>
+            </div>
+            <div id="rExtras" style="font-size:11px; color:var(--ink-light); line-height:1.8; margin-bottom:8px;"></div>
+            <div id="rMarketTag" style="display:none"></div>
+
+            <div class="shopee-block">
+              <div class="shopee-header">🛒 蝦皮販售試算（手續費 14.5%）</div>
+              <div class="shopee-rows">
+                <div class="shopee-item"><label>蝦皮手續費</label><div class="val" id="rShopeeFee">—</div></div>
+                <div class="shopee-item"><label>蝦皮實收</label><div class="val" id="rShopeeNet">—</div></div>
+                <div class="shopee-item"><label>蝦皮毛利</label><div class="val" id="rShopeeProfit">—</div></div>
+              </div>
+              <div class="shopee-verdict" id="rShopeeVerdict"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:20px">
+          <div class="card-title">本次報價清單</div>
+          <div id="quoteListEmpty" class="empty-state" style="padding:30px"><p>尚無報價項目</p></div>
+          <div id="quoteList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ PAGE: PURCHASE ═══ -->
+<div class="page" id="page-purchase">
+  <div class="purchase-header">
+    <div class="total-display">
+      <div class="label">總採買金額</div>
+      <div class="amount-krw" id="totalKrw">₩ 0</div>
+      <div class="amount-twd" id="totalTwd">NT$ 0</div>
+    </div>
+    <div class="total-summary">
+      <div class="summary-item">
+        <div class="s-label">預估服務費</div>
+        <div class="s-val" id="sumService">NT$0</div>
+      </div>
+      <div class="summary-item">
+        <div class="s-label">預估總售價</div>
+        <div class="s-val" id="sumSell">NT$0</div>
+      </div>
+      <div class="summary-item">
+        <div class="s-label">預估毛利</div>
+        <div class="s-val" id="sumProfit">NT$0</div>
+      </div>
+      <button class="btn btn-rose" onclick="syncToSheet()">同步至 Google Sheet ↗</button>
+    </div>
+  </div>
+
+  <div class="main" style="padding-top:24px">
+    <div class="card">
+      <div class="card-title">採買清單</div>
+      <div id="purchaseEmpty" class="empty-state">
+        <div class="icon">🛍</div>
+        <p>先在報價頁確認商品後<br>此處會自動帶入</p>
+      </div>
+      <div id="purchaseWrap" style="display:none">
+        <!-- 一般品類 -->
+        <div id="normalSection">
+          <div class="section-head">一般代購品項</div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>商品名稱</th><th>品類</th><th>韓元單價</th><th>台幣成本</th>
+                  <th>採買數量</th><th>小計（₩）</th><th>小計（NT$）</th><th>備註</th><th></th>
+                </tr>
+              </thead>
+              <tbody id="purchaseTbody"></tbody>
+            </table>
+          </div>
+        </div>
+        <!-- 批發品類 -->
+        <div id="wholesaleSection" style="display:none; margin-top:24px">
+          <div class="section-head">批發品項</div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>商品名稱</th><th>韓元進貨</th><th>台幣成本</th><th>台灣市價</th><th>販售價格</th>
+                  <th>採買數量</th><th>小計成本</th><th>小計售價</th><th>備註</th><th></th>
+                </tr>
+              </thead>
+              <tbody id="wholesaleTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ PAGE: CONFIG ═══ -->
+<div class="page" id="page-config">
+  <div class="main">
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">行程設定</div>
+        <div class="field"><label>機票+住宿總費用（NT$）</label><input type="number" id="cfgTrip" placeholder="25000" oninput="saveConfig()"></div>
+        <div class="field"><label>行程天數</label><input type="number" id="cfgDays" placeholder="5" oninput="saveConfig()"></div>
+        <div class="field"><label>預設匯率（₩1 = NT$?）</label><input type="number" id="cfgRate" step="0.001" placeholder="0.023" oninput="saveConfig()"></div>
+        <div class="field">
+          <label>配送方式</label>
+          <select id="cfgShip" onchange="saveConfig()">
+            <option value="self">自帶回台</option>
+            <option value="intl">韓國直送（NT$110/kg）</option>
+          </select>
+        </div>
+        <div class="field"><label>大體積空間費（NT$）</label><input type="number" id="cfgBulky" placeholder="100" oninput="saveConfig()"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">各品類加成比例</div>
+        <div class="field"><label>Olive Young（%）</label><input type="number" id="r_OliveYoung" value="45" oninput="saveConfig()"></div>
+        <div class="field"><label>藥局醫美（%）</label><input type="number" id="r_藥局醫美" value="25" oninput="saveConfig()"></div>
+        <div class="field"><label>韓系潮牌（%）</label><input type="number" id="r_韓系潮牌" value="35" oninput="saveConfig()"></div>
+        <div class="field"><label>專櫃精品（%）</label><input type="number" id="r_專櫃精品" value="12" oninput="saveConfig()"></div>
+        <div class="field"><label>電器 3C（%）</label><input type="number" id="r_電器3C" value="20" oninput="saveConfig()"></div>
+        <div class="field"><label>食品零食（%）</label><input type="number" id="r_食品零食" value="45" oninput="saveConfig()"></div>
+        <div class="field"><label>文創周邊（%）</label><input type="number" id="r_文創周邊" value="50" oninput="saveConfig()"></div>
+        <div class="field"><label>其他小物（%）</label><input type="number" id="r_其他小物" value="40" oninput="saveConfig()"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Google Sheet 串接</div>
+        <div class="field"><label>Apps Script Web App URL</label><input type="text" id="cfgScriptUrl" placeholder="https://script.google.com/macros/s/..." oninput="saveConfig()"></div>
+        <div class="gs-notice">
+          📋 <strong>串接步驟（v2.0 — 每品類獨立分頁）：</strong><br>
+          1. 點擊下方「複製 Apps Script 腳本」<br>
+          2. 開啟你的 Google Sheet → 複製網址列中的 Sheet ID（兩個 / 之間的長字串）<br>
+          3. 擴充功能 → Apps Script → 貼入腳本<br>
+          4. 將第一行 <strong>SS_ID</strong> 的值替換成你的 Sheet ID<br>
+          5. 儲存 → 部署 → 新增部署 → 類型「網路應用程式」→ 存取權「所有人」<br>
+          6. 複製 Web App URL 貼入上方欄位<br><br>
+          📊 <strong>自動建立分頁：</strong>總覽、Olive Young（OY）、藥局醫美（PH）、韓系潮牌（KF）、專櫃精品（LX）、電器3C（EC）、食品零食（FD）、文創周邊（CT）、韓國大創（DS）、批發（WS）、其他小物（OT）
+        </div>
+        <button class="btn btn-outline mt16" style="margin-top:16px" onclick="copyScript()">複製 Apps Script 腳本</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <div class="modal-title">編輯商品</div>
+    <div class="field"><label>商品名稱</label><input type="text" id="editName"></div>
+    <div id="editNormalFields">
+      <div class="field"><label>韓元單價（₩）</label><input type="number" id="editKrw"></div>
+    </div>
+    <div id="editWsFields" style="display:none">
+      <div class="field"><label>韓元進貨成本（₩）</label><input type="number" id="editWsKrw"></div>
+      <div class="field"><label>匯率（₩1=NT$?）</label><input type="number" id="editWsRate" step="0.001"></div>
+      <div class="field"><label>台灣市價（NT$）</label><input type="number" id="editWsMarket"></div>
+      <div class="field"><label>販售價格（NT$）</label><input type="number" id="editWsPrice"></div>
+    </div>
+    <div class="field"><label>備註</label><input type="text" id="editNote"></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="saveEdit()">儲存</button>
+      <button class="btn btn-outline" onclick="closeModal()">取消</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── STATE ──
+let state = {
+  config: {
+    trip: 25000, days: 5, rate: 0.023, ship: 'self', bulky: 100,
+    scriptUrl: 'https://script.google.com/macros/s/AKfycbxY8q43hVlBHIW8wWR2zgD4bf5SNoeVjxkFqcscRTjro0fcP_cbPGbwu-OOmgLKIhIp/exec',
+    rates: {
+      'Olive Young': 45, '藥局醫美': 25, '韓系潮牌': 35, '專櫃精品': 12,
+      '電器3C': 20, '食品零食': 45, '文創周邊': 50, '其他小物': 40,
+      '韓國大創': 30, '批發': 0
+    }
+  },
+  quotes: [],
+  selectedCat: '',
+  daisoMode: 'preset',
+  selectedDaiso: null,
+  editingIdx: null
+};
+
+const CATS = ['Olive Young','藥局醫美','韓系潮牌','專櫃精品','電器3C','食品零食','文創周邊','韓國大創','批發','其他小物'];
+
+window.onload = () => {
+  const saved = localStorage.getItem('krProxy');
+  if (saved) {
+    const parsed = JSON.parse(saved);
+    // migrate old 韓妝保養 → 藥局醫美
+    if (parsed.config && parsed.config.rates && parsed.config.rates['韓妝保養'] !== undefined) {
+      parsed.config.rates['藥局醫美'] = parsed.config.rates['韓妝保養'];
+      delete parsed.config.rates['韓妝保養'];
+    }
+    // migrate old Olive Young rate if still 25
+    if (parsed.config && parsed.config.rates && parsed.config.rates['Olive Young'] === 25) {
+      parsed.config.rates['Olive Young'] = 45;
+    }
+    // add 專櫃精品 if missing
+    if (parsed.config && parsed.config.rates && parsed.config.rates['專櫃精品'] === undefined) {
+      parsed.config.rates['專櫃精品'] = 12;
+    }
+    state = parsed;
+  }
+  // 確保 scriptUrl 已設定
+  if (!state.config.scriptUrl) {
+    state.config.scriptUrl = 'https://script.google.com/macros/s/AKfycbxY8q43hVlBHIW8wWR2zgD4bf5SNoeVjxkFqcscRTjro0fcP_cbPGbwu-OOmgLKIhIp/exec';
+    save();
+  }
+  loadConfigUI();
+  renderProgress();
+  renderQuoteList();
+  renderPurchase();
+  document.getElementById('rate').value = state.config.rate;
+  document.getElementById('daisoRate').value = state.config.rate;
+  document.getElementById('wsRate').value = state.config.rate;
+};
+
+function save() { localStorage.setItem('krProxy', JSON.stringify(state)); }
+
+// ── PAGE SWITCH ──
+function switchPage(p, btn) {
+  document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+  document.getElementById('page-' + p).classList.add('active');
+  btn.classList.add('active');
+  if (p === 'purchase') renderPurchase();
+}
+
+// ── CAT SELECT ──
+function selectCat(el) {
+  document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('selected'));
+  el.classList.add('selected');
+  state.selectedCat = el.dataset.cat;
+
+  const cat = state.selectedCat;
+  const isNormal = (cat !== '韓國大創' && cat !== '批發');
+  document.getElementById('normalFields').style.display = isNormal ? 'block' : 'none';
+  document.getElementById('daisoFields').style.display = cat === '韓國大創' ? 'block' : 'none';
+  document.getElementById('wholesaleFields').style.display = cat === '批發' ? 'block' : 'none';
+
+  // 帶入品類預設加成%
+  if (isNormal) {
+    const defaultRate = state.config.rates[cat] || 35;
+    document.getElementById('customRate').value = defaultRate;
+    document.getElementById('customRateNote').textContent = `品類預設 ${defaultRate}%`;
+  }
+
+  hideResult();
+  resetResult();
+}
+
+// ── DAISO MODE ──
+function switchDaisoMode(mode, btn) {
+  state.daisoMode = mode;
+  document.querySelectorAll('.daiso-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('daisoPreset').style.display = mode === 'preset' ? 'block' : 'none';
+  document.getElementById('daisoManual').style.display = mode === 'manual' ? 'block' : 'none';
+  if (mode === 'manual') {
+    document.getElementById('daisoRate').value = state.config.rate;
+    document.getElementById('daisoCustomRate').value = 30;
+  }
+  state.selectedDaiso = null;
+  document.querySelectorAll('.daiso-btn').forEach(b => b.classList.remove('selected'));
+  hideResult();
+}
+
+function selectDaiso(el) {
+  document.querySelectorAll('.daiso-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  state.selectedDaiso = {
+    krw: parseInt(el.dataset.krw),
+    price: parseInt(el.dataset.price)
+  };
+  calcDaisoPreset();
+}
+
+// ── TOGGLE ──
+function toggleSwitch(id) { document.getElementById(id).classList.toggle('on'); }
+function isOn(id) { return document.getElementById(id).classList.contains('on'); }
+
+// ── REFUND TOGGLE HANDLERS ──
+function onRefundToggle() {
+  const on = isOn('toggleRefund');
+  document.getElementById('refundFactorWrap').style.display = on ? 'block' : 'none';
+  if (!on) document.getElementById('rRefundRow').style.display = 'none';
+  calc();
+}
+
+function onDaisoRefundToggle() {
+  const on = isOn('toggleDaisoRefund');
+  document.getElementById('daisoRefundFactorWrap').style.display = on ? 'block' : 'none';
+  if (!on) document.getElementById('rRefundRow').style.display = 'none';
+  calcDaiso();
+}
+
+// ── HELPERS ──
+function roundUp5(n) { return Math.ceil(n / 5) * 5; }
+function fmtNum(n) { return Math.round(n).toLocaleString('zh-TW'); }
+function fmtNT(n) { return 'NT$' + fmtNum(n); }
+function fmtKRW(n) { return '₩' + fmtNum(n); }
+
+function hideResult() {
+  document.getElementById('resultEmpty').style.display = 'block';
+  document.getElementById('resultContent').style.display = 'none';
+}
+function resetResult() { window._tmpCalc = null; }
+
+function showResultContent() {
+  document.getElementById('resultEmpty').style.display = 'none';
+  document.getElementById('resultContent').style.display = 'block';
+}
+
+function renderShopee(price, cost, deliveryFee) {
+  const shopeeFee = price * 0.145;
+  const shopeeNet = price - shopeeFee;
+  const shopeeProfit = shopeeNet - cost - deliveryFee;
+  document.getElementById('rShopeeFee').textContent = fmtNT(shopeeFee);
+  document.getElementById('rShopeeNet').textContent = fmtNT(shopeeNet);
+  const spEl = document.getElementById('rShopeeProfit');
+  spEl.textContent = fmtNT(shopeeProfit);
+  spEl.className = 'val ' + (shopeeProfit > 0 ? 'positive' : 'negative');
+  const vEl = document.getElementById('rShopeeVerdict');
+  if (shopeeProfit > 0) {
+    vEl.className = 'shopee-verdict ok';
+    vEl.innerHTML = `✅ 蝦皮可售，毛利 ${fmtNT(shopeeProfit)}`;
+  } else if (shopeeProfit > -200) {
+    vEl.className = 'shopee-verdict warn';
+    vEl.innerHTML = `⚠️ 毛利偏低，建議調高售價至 ${fmtNT(roundUp5(price + 100))}`;
+  } else {
+    vEl.className = 'shopee-verdict bad';
+    vEl.innerHTML = `❌ 蝦皮販售虧損 ${fmtNT(Math.abs(shopeeProfit))}，不建議上架`;
+  }
+  return { shopeeFee, shopeeNet, shopeeProfit };
+}
+
+// ── CALC: 一般品類 ──
+function calc() {
+  const krw = parseFloat(document.getElementById('krwPrice').value) || 0;
+  const rate = parseFloat(document.getElementById('rate').value) || state.config.rate;
+  const cat = state.selectedCat;
+  if (cat === '韓國大創' || cat === '批發') return;
+  if (krw <= 0 || !cat) { hideResult(); return; }
+
+  const ship = state.config.ship;
+  const weight = parseFloat(document.getElementById('weight').value) || 0;
+  const bulky = isOn('toggleBulky');
+  const urgent = isOn('toggleUrgent');
+  const refund = isOn('toggleRefund');
+  document.getElementById('weightRow').style.display = ship === 'intl' ? 'block' : 'none';
+
+  const customRateVal = parseFloat(document.getElementById('customRate').value);
+  const markup = (isNaN(customRateVal) ? (state.config.rates[cat] || 35) : customRateVal) / 100;
+
+  const rawCost = krw * rate;
+  const refundFactor = refund ? (parseFloat(document.getElementById('refundFactor').value) || 0.92) : 1;
+  const cost = rawCost * refundFactor;   // 所有後續計算基於退稅後成本
+
+  // 退稅結果列
+  if (refund) {
+    document.getElementById('rRefundRow').style.display = '';
+    document.getElementById('rRefundCost').textContent = fmtNT(cost);
+    const saving = rawCost - cost;
+    document.getElementById('rRefundSaving').textContent = `退稅省了 NT$${fmtNum(saving)}（原始 ${fmtNT(rawCost)}）`;
+  } else {
+    document.getElementById('rRefundRow').style.display = 'none';
+  }
+
+  const service = cost * markup;
+  const bulkyFee = bulky ? state.config.bulky : 0;
+  const deliveryFee = ship === 'intl' ? weight * 110 : 0;
+  let subtotal = cost + service + bulkyFee + deliveryFee;
+  const urgentFee = urgent ? subtotal * 0.1 : 0;
+  subtotal += urgentFee;
+  const price = roundUp5(subtotal);
+  const profit = price - cost - deliveryFee;
+  const margin = price > 0 ? (profit / price * 100) : 0;
+
+  document.getElementById('rCostLabel').textContent = refund ? '原始台幣成本' : '台幣成本';
+  document.getElementById('rCost').textContent = fmtNT(rawCost);
+  document.getElementById('rService').textContent = fmtNT(service);
+  document.getElementById('rServiceRow').style.display = '';
+  document.getElementById('rPrice').textContent = fmtNT(price);
+  const profEl = document.getElementById('rProfit');
+  profEl.textContent = fmtNT(profit);
+  profEl.className = 'val ' + (profit > 0 ? 'positive' : 'negative');
+  document.getElementById('rMargin').textContent = margin.toFixed(1) + '%';
+  document.getElementById('rMarketTag').style.display = 'none';
+
+  let extras = [];
+  if (bulky) extras.push(`空間費 NT$${state.config.bulky}`);
+  if (urgent) extras.push(`急件費 NT$${fmtNum(urgentFee)}`);
+  if (deliveryFee > 0) extras.push(`配送費 NT$${fmtNum(deliveryFee)}`);
+  document.getElementById('rExtras').innerHTML = extras.length ? extras.join('　·　') : '';
+
+  const shopeeData = renderShopee(price, cost, deliveryFee);
+  showResultContent();
+
+  window._tmpCalc = {
+    krw, rate, cat, rawCost, cost, service, price, profit, margin,
+    refund, refundFactor,
+    ...shopeeData, deliveryFee, bulky, urgent, bulkyFee, urgentFee,
+    type: 'normal', markup: markup * 100
+  };
+}
+
+// ── CALC: 大創 preset ──
+function calcDaisoPreset() {
+  if (!state.selectedDaiso) return;
+  const { krw, price } = state.selectedDaiso;
+  const rate = state.config.rate;
+  const rawCost = krw * rate;
+  const urgent = isOn('toggleDaisoUrgent');
+  const refund = isOn('toggleDaisoRefund');
+  const refundFactor = refund ? (parseFloat(document.getElementById('daisoRefundFactor').value) || 0.92) : 1;
+
+  // 選區間模式：售價固定，僅以退稅後成本更新毛利
+  const cost = rawCost * refundFactor;
+  const finalPrice = urgent ? roundUp5(price * 1.1) : price;
+  const profit = finalPrice - cost;
+  const margin = finalPrice > 0 ? (profit / finalPrice * 100) : 0;
+
+  document.getElementById('rCostLabel').textContent = refund ? '原始台幣成本' : '台幣成本';
+  document.getElementById('rCost').textContent = fmtNT(rawCost);
+
+  if (refund) {
+    document.getElementById('rRefundRow').style.display = '';
+    document.getElementById('rRefundCost').textContent = fmtNT(cost);
+    const saving = rawCost - cost;
+    document.getElementById('rRefundSaving').textContent = `退稅省了 NT$${fmtNum(saving)}（售價固定，僅更新毛利）`;
+  } else {
+    document.getElementById('rRefundRow').style.display = 'none';
+  }
+
+  document.getElementById('rService').textContent = '固定定價';
+  document.getElementById('rServiceRow').style.display = '';
+  document.getElementById('rPrice').textContent = fmtNT(finalPrice);
+  document.getElementById('rProfit').textContent = fmtNT(profit);
+  document.getElementById('rMargin').textContent = margin.toFixed(1) + '%';
+  document.getElementById('rExtras').innerHTML = urgent ? `急件費 NT$${fmtNum(finalPrice - price)}` : '';
+  document.getElementById('rMarketTag').style.display = 'none';
+
+  const shopeeData = renderShopee(finalPrice, cost, 0);
+  showResultContent();
+
+  window._tmpCalc = {
+    krw, rate, cat: '韓國大創', rawCost, cost, service: finalPrice - cost,
+    price: finalPrice, profit, margin, refund, refundFactor,
+    ...shopeeData, deliveryFee: 0, urgent, type: 'daiso', daisoLabel: '固定定價'
+  };
+}
+
+// ── CALC: 大創 manual ──
+function calcDaiso() {
+  if (state.daisoMode === 'preset') { calcDaisoPreset(); return; }
+  const krw = parseFloat(document.getElementById('daisoKrw').value) || 0;
+  const rate = parseFloat(document.getElementById('daisoRate').value) || state.config.rate;
+  const customR = parseFloat(document.getElementById('daisoCustomRate').value) || 30;
+  if (krw <= 0) { hideResult(); return; }
+
+  const refund = isOn('toggleDaisoRefund');
+  const refundFactor = refund ? (parseFloat(document.getElementById('daisoRefundFactor').value) || 0.92) : 1;
+  const rawCost = krw * rate;
+  const cost = rawCost * refundFactor;
+
+  if (refund) {
+    document.getElementById('rRefundRow').style.display = '';
+    document.getElementById('rRefundCost').textContent = fmtNT(cost);
+    const saving = rawCost - cost;
+    document.getElementById('rRefundSaving').textContent = `退稅省了 NT$${fmtNum(saving)}（原始 ${fmtNT(rawCost)}）`;
+  } else {
+    document.getElementById('rRefundRow').style.display = 'none';
+  }
+
+  const service = cost * (customR / 100);
+  const urgent = isOn('toggleDaisoUrgent');
+  let subtotal = cost + service;
+  const urgentFee = urgent ? subtotal * 0.1 : 0;
+  subtotal += urgentFee;
+  const price = roundUp5(subtotal);
+  const profit = price - cost;
+  const margin = price > 0 ? (profit / price * 100) : 0;
+
+  document.getElementById('rCostLabel').textContent = refund ? '原始台幣成本' : '台幣成本';
+  document.getElementById('rCost').textContent = fmtNT(rawCost);
+  document.getElementById('rService').textContent = fmtNT(service);
+  document.getElementById('rServiceRow').style.display = '';
+  document.getElementById('rPrice').textContent = fmtNT(price);
+  document.getElementById('rProfit').textContent = fmtNT(profit);
+  document.getElementById('rMargin').textContent = margin.toFixed(1) + '%';
+  document.getElementById('rExtras').innerHTML = urgent ? `急件費 NT$${fmtNum(urgentFee)}` : '';
+  document.getElementById('rMarketTag').style.display = 'none';
+
+  const shopeeData = renderShopee(price, cost, 0);
+  showResultContent();
+
+  window._tmpCalc = {
+    krw, rate, cat: '韓國大創', rawCost, cost, service, price, profit, margin,
+    refund, refundFactor,
+    ...shopeeData, deliveryFee: 0, urgent, type: 'daiso', daisoLabel: '自訂金額'
+  };
+}
+
+// ── CALC: 批發（韓元進貨，不套用退稅） ──
+function calcWholesale() {
+  const wsKrw = parseFloat(document.getElementById('wsKrw').value) || 0;
+  const wsRateVal = parseFloat(document.getElementById('wsRate').value) || state.config.rate;
+  const cost = wsKrw > 0 ? wsKrw * wsRateVal : 0;
+
+  // 顯示換算後台幣成本
+  document.getElementById('wsComputedCost').textContent = wsKrw > 0 ? fmtNT(cost) : '—';
+
+  const market = parseFloat(document.getElementById('wsMarket').value) || 0;
+  const price = parseFloat(document.getElementById('wsPrice').value) || 0;
+  if (wsKrw <= 0 || price <= 0) { hideResult(); return; }
+
+  const profit = price - cost;
+  const margin = price > 0 ? (profit / price * 100) : 0;
+
+  document.getElementById('rRefundRow').style.display = 'none';
+  document.getElementById('rCostLabel').textContent = '進貨成本（₩換算）';
+  document.getElementById('rCost').textContent = fmtNT(cost);
+  document.getElementById('rServiceRow').style.display = 'none';
+  document.getElementById('rPrice').textContent = fmtNT(price);
+  document.getElementById('rProfit').textContent = fmtNT(profit);
+  const profEl = document.getElementById('rProfit');
+  profEl.className = 'val ' + (profit > 0 ? 'positive' : 'negative');
+  document.getElementById('rMargin').textContent = margin.toFixed(1) + '%';
+  document.getElementById('rExtras').innerHTML = `₩${fmtNum(wsKrw)} × ${wsRateVal} = ${fmtNT(cost)}`;
+
+  // 市價對比
+  const mtEl = document.getElementById('rMarketTag');
+  mtEl.style.display = 'block';
+  if (market > 0) {
+    if (price < market) {
+      const saving = market - price;
+      const savingPct = ((saving / market) * 100).toFixed(0);
+      mtEl.innerHTML = `<div class="ws-market-tag ok">✅ 低於市價 ${fmtNT(saving)}（省 ${savingPct}%），具競爭力</div>`;
+    } else {
+      mtEl.innerHTML = `<div class="ws-market-tag bad">❌ 售價高於或等於市價，不建議上架</div>`;
+    }
+  } else {
+    mtEl.innerHTML = '';
+  }
+
+  const shopeeData = renderShopee(price, cost, 0);
+  showResultContent();
+
+  window._tmpCalc = {
+    krw: wsKrw, rate: wsRateVal, cat: '批發', rawCost: cost, cost, service: 0,
+    price, profit, margin, market, ...shopeeData, deliveryFee: 0,
+    type: 'wholesale'
+  };
+}
+
+// ── SUBMIT ──
+function submitQuote() {
+  if (!window._tmpCalc) { alert('請先輸入商品資訊並選擇品類'); return; }
+  const name = document.getElementById('itemName').value.trim();
+  if (!name) { alert('請輸入商品名稱'); return; }
+  if (window._tmpCalc.type === 'wholesale' && window._tmpCalc.price >= (window._tmpCalc.market || Infinity) && window._tmpCalc.market > 0) {
+    if (!confirm('售價高於市價，確定要加入？')) return;
+  }
+
+  const item = {
+    id: Date.now(),
+    name,
+    note: document.getElementById('itemNote').value,
+    qty: 0,
+    modified: false,
+    ...window._tmpCalc
+  };
+  state.quotes.push(item);
+  save();
+  renderQuoteList();
+  renderProgress();
+  renderPurchase();
+  clearForm();
+  syncItem(item);
+}
+
+function clearForm() {
+  document.getElementById('itemName').value = '';
+  document.getElementById('krwPrice').value = '';
+  document.getElementById('itemNote').value = '';
+  document.getElementById('weight').value = '';
+  document.getElementById('wsKrw').value = '';
+  document.getElementById('wsMarket').value = '';
+  document.getElementById('wsPrice').value = '';
+  document.getElementById('wsComputedCost').textContent = '—';
+  document.getElementById('daisoKrw').value = '';
+  document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('selected'));
+  document.querySelectorAll('.daiso-btn').forEach(b => b.classList.remove('selected'));
+  state.selectedCat = '';
+  state.selectedDaiso = null;
+  ['toggleBulky','toggleUrgent','toggleDaisoUrgent','toggleRefund','toggleDaisoRefund'].forEach(id => {
+    if (isOn(id)) toggleSwitch(id);
+  });
+  document.getElementById('refundFactorWrap').style.display = 'none';
+  document.getElementById('daisoRefundFactorWrap').style.display = 'none';
+  document.getElementById('rRefundRow').style.display = 'none';
+  document.getElementById('normalFields').style.display = 'block';
+  document.getElementById('daisoFields').style.display = 'none';
+  document.getElementById('wholesaleFields').style.display = 'none';
+  hideResult();
+  window._tmpCalc = null;
+}
+
+// ── QUOTE LIST ──
+function renderQuoteList() {
+  const el = document.getElementById('quoteList');
+  const empty = document.getElementById('quoteListEmpty');
+  if (state.quotes.length === 0) { empty.style.display = 'block'; el.innerHTML = ''; return; }
+  empty.style.display = 'none';
+  el.innerHTML = state.quotes.map((q, i) => `
+    <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border-light);">
+      <div>
+        <div style="font-size:13px">${q.name}
+          ${q.type === 'wholesale' ? '<span class="badge badge-ws">批發</span>' : ''}
+          ${q.type === 'daiso' ? '<span class="badge" style="background:var(--rose-pale);color:var(--rose)">大創</span>' : ''}
+          ${q.refund ? '<span class="badge" style="background:var(--green-pale);color:var(--green)">退稅</span>' : ''}
+        </div>
+        <div style="font-size:11px; color:var(--ink-light)">${q.cat} · ${q.type === 'wholesale' ? '成本 '+fmtNT(q.cost) : fmtKRW(q.krw)}</div>
+      </div>
+      <div style="display:flex; align-items:center; gap:12px">
+        <div style="text-align:right">
+          <div style="font-family:'DM Mono',monospace; font-size:14px">${fmtNT(q.price)}</div>
+          <div style="font-size:11px; color:var(--green)">毛利 ${fmtNT(q.profit)}</div>
+        </div>
+        <button class="edit-btn" onclick="removeQuote(${i})">✕</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function removeQuote(i) {
+  state.quotes.splice(i, 1);
+  save(); renderQuoteList(); renderProgress(); renderPurchase();
+}
+
+// ── PROGRESS ──
+function renderProgress() {
+  const goal = state.config.trip || 0;
+  const total = state.quotes.reduce((s, q) => s + (q.service || 0), 0);
+  const pct = goal > 0 ? Math.min(100, (total / goal) * 100) : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct.toFixed(0) + '%';
+  document.getElementById('progressAmounts').textContent = `NT$${fmtNum(Math.round(total))} / NT$${fmtNum(goal)}`;
+}
+
+// ── PURCHASE ──
+function renderPurchase() {
+  const normal = state.quotes.filter(q => q.type !== 'wholesale');
+  const ws = state.quotes.filter(q => q.type === 'wholesale');
+  const hasAny = state.quotes.length > 0;
+
+  document.getElementById('purchaseEmpty').style.display = hasAny ? 'none' : 'block';
+  document.getElementById('purchaseWrap').style.display = hasAny ? 'block' : 'none';
+  document.getElementById('normalSection').style.display = normal.length > 0 ? 'block' : 'none';
+  document.getElementById('wholesaleSection').style.display = ws.length > 0 ? 'block' : 'none';
+
+  // 一般
+  document.getElementById('purchaseTbody').innerHTML = normal.map((q, i) => {
+    const realIdx = state.quotes.indexOf(q);
+    const label = q.type === 'daiso' ? q.daisoLabel || '固定定價' : fmtKRW(q.krw);
+    const costLabel = q.refund ? `${fmtNT(q.cost)}<br><span style="font-size:10px;color:var(--green)">退稅後</span>` : fmtNT(q.cost);
+    return `<tr>
+      <td>${q.name} ${q.modified ? '<span class="badge badge-modified">已修改</span>' : ''} ${q.refund ? '<span class="badge" style="background:var(--green-pale);color:var(--green)">退稅</span>' : ''}</td>
+      <td><span style="font-size:11px;color:var(--ink-light)">${q.cat}</span></td>
+      <td class="mono">${label}</td>
+      <td class="mono">${costLabel}</td>
+      <td><input class="qty-input" type="number" min="0" value="${q.qty}" onchange="setQty(${realIdx}, this.value)"></td>
+      <td class="mono" id="subKrw_${realIdx}">${q.type === 'daiso' ? '—' : fmtKRW(q.krw * q.qty)}</td>
+      <td class="mono" id="subTwd_${realIdx}">${fmtNT(q.cost * q.qty)}</td>
+      <td style="font-size:12px;color:var(--ink-light)">${q.note || '—'}</td>
+      <td><button class="edit-btn" onclick="openEdit(${realIdx})">✏️</button></td>
+    </tr>`;
+  }).join('');
+
+  // 批發
+  document.getElementById('wholesaleTbody').innerHTML = ws.map((q) => {
+    const realIdx = state.quotes.indexOf(q);
+    return `<tr>
+      <td>${q.name}</td>
+      <td class="mono">${fmtKRW(q.krw || 0)}</td>
+      <td class="mono">${fmtNT(q.cost)}</td>
+      <td class="mono">${q.market > 0 ? fmtNT(q.market) : '—'}</td>
+      <td class="mono">${fmtNT(q.price)}</td>
+      <td><input class="qty-input" type="number" min="0" value="${q.qty}" onchange="setQty(${realIdx}, this.value)"></td>
+      <td class="mono" id="subKrw_${realIdx}">${fmtNT(q.cost * q.qty)}</td>
+      <td class="mono" id="subTwd_${realIdx}">${fmtNT(q.price * q.qty)}</td>
+      <td style="font-size:12px;color:var(--ink-light)">${q.note || '—'}</td>
+      <td><button class="edit-btn" onclick="openEdit(${realIdx})">✏️</button></td>
+    </tr>`;
+  }).join('');
+
+  updatePurchaseTotals();
+}
+
+function setQty(i, v) {
+  state.quotes[i].qty = parseInt(v) || 0;
+  save();
+  const q = state.quotes[i];
+  document.getElementById('subKrw_' + i).textContent = (q.type === 'daiso' || q.type === 'wholesale') ? '—' : fmtKRW(q.krw * q.qty);
+  document.getElementById('subTwd_' + i).textContent = q.type === 'wholesale' ? fmtNT(q.price * q.qty) : fmtNT(q.cost * q.qty);
+  updatePurchaseTotals();
+}
+
+function updatePurchaseTotals() {
+  let totalKrw = 0, totalCost = 0, totalService = 0, totalSell = 0, totalProfit = 0;
+  state.quotes.forEach(q => {
+    const qty = q.qty || 0;
+    if (q.type !== 'wholesale') totalKrw += (q.krw || 0) * qty;
+    totalCost += q.cost * qty;
+    totalService += (q.service || 0) * qty;
+    totalSell += q.price * qty;
+    totalProfit += q.profit * qty;
+  });
+  document.getElementById('totalKrw').textContent = '₩ ' + fmtNum(Math.round(totalKrw));
+  document.getElementById('totalTwd').textContent = 'NT$ ' + fmtNum(Math.round(totalCost));
+  document.getElementById('sumService').textContent = fmtNT(totalService);
+  document.getElementById('sumSell').textContent = fmtNT(totalSell);
+  document.getElementById('sumProfit').textContent = fmtNT(totalProfit);
+}
+
+// ── EDIT MODAL ──
+function openEdit(i) {
+  state.editingIdx = i;
+  const q = state.quotes[i];
+  document.getElementById('editName').value = q.name;
+  document.getElementById('editNote').value = q.note || '';
+  const isWs = q.type === 'wholesale';
+  document.getElementById('editNormalFields').style.display = isWs ? 'none' : 'block';
+  document.getElementById('editWsFields').style.display = isWs ? 'block' : 'none';
+  if (!isWs) {
+    document.getElementById('editKrw').value = q.krw;
+  } else {
+    document.getElementById('editWsKrw').value = q.krw || 0;
+    document.getElementById('editWsRate').value = q.rate || state.config.rate;
+    document.getElementById('editWsMarket').value = q.market || '';
+    document.getElementById('editWsPrice').value = q.price;
+  }
+  document.getElementById('editModal').classList.add('open');
+}
+function closeModal() { document.getElementById('editModal').classList.remove('open'); state.editingIdx = null; }
+function saveEdit() {
+  const i = state.editingIdx;
+  const q = state.quotes[i];
+  q.name = document.getElementById('editName').value.trim();
+  q.note = document.getElementById('editNote').value;
+  if (q.type === 'wholesale') {
+    const newKrw = parseFloat(document.getElementById('editWsKrw').value) || q.krw;
+    const newRate = parseFloat(document.getElementById('editWsRate').value) || q.rate;
+    q.krw = newKrw;
+    q.rate = newRate;
+    q.cost = newKrw * newRate;
+    q.market = parseFloat(document.getElementById('editWsMarket').value) || q.market;
+    q.price = parseFloat(document.getElementById('editWsPrice').value) || q.price;
+    q.profit = q.price - q.cost;
+    q.margin = q.price > 0 ? q.profit / q.price * 100 : 0;
+    q.modified = true;
+  } else if (q.type !== 'daiso') {
+    const newKrw = parseFloat(document.getElementById('editKrw').value) || q.krw;
+    if (newKrw !== q.krw) {
+      q.modified = true;
+      q.krw = newKrw;
+      q.rawCost = newKrw * q.rate;
+      q.cost = q.rawCost * (q.refund ? (q.refundFactor || 0.92) : 1);
+      q.service = q.cost * ((state.config.rates[q.cat] || 35) / 100);
+      const base = q.cost + q.service + (q.bulky ? state.config.bulky : 0) + q.deliveryFee;
+      const urgentFee = q.urgent ? base * 0.1 : 0;
+      q.price = roundUp5(base + urgentFee);
+      q.profit = q.price - q.cost - q.deliveryFee;
+    }
+  }
+  save(); closeModal(); renderPurchase(); renderQuoteList();
+}
+
+// ── CONFIG ──
+function saveConfig() {
+  state.config.trip = parseFloat(document.getElementById('cfgTrip').value) || 0;
+  state.config.days = parseInt(document.getElementById('cfgDays').value) || 5;
+  state.config.rate = parseFloat(document.getElementById('cfgRate').value) || 0.023;
+  state.config.ship = document.getElementById('cfgShip').value;
+  state.config.bulky = parseFloat(document.getElementById('cfgBulky').value) || 100;
+  state.config.scriptUrl = document.getElementById('cfgScriptUrl').value;
+  ['Olive Young','藥局醫美','韓系潮牌','專櫃精品','電器3C','食品零食','文創周邊','其他小物'].forEach(k => {
+    const el = document.getElementById('r_' + k.replace(/ /g,''));
+    if (el) state.config.rates[k] = parseFloat(el.value) || 35;
+  });
+  save(); renderProgress();
+  document.getElementById('rate').value = state.config.rate;
+  document.getElementById('daisoRate').value = state.config.rate;
+  document.getElementById('wsRate').value = state.config.rate;
+  document.getElementById('weightRow').style.display = state.config.ship === 'intl' ? 'block' : 'none';
+}
+
+function loadConfigUI() {
+  const c = state.config;
+  document.getElementById('cfgTrip').value = c.trip || '';
+  document.getElementById('cfgDays').value = c.days || '';
+  document.getElementById('cfgRate').value = c.rate || '';
+  document.getElementById('cfgShip').value = c.ship || 'self';
+  document.getElementById('cfgBulky').value = c.bulky || 100;
+  document.getElementById('cfgScriptUrl').value = c.scriptUrl || '';
+  ['Olive Young','藥局醫美','韓系潮牌','專櫃精品','電器3C','食品零食','文創周邊','其他小物'].forEach(k => {
+    const el = document.getElementById('r_' + k.replace(/ /g,''));
+    if (el && c.rates[k] !== undefined) el.value = c.rates[k];
+  });
+  document.getElementById('rate').value = c.rate || 0.023;
+  document.getElementById('daisoRate').value = c.rate || 0.023;
+  document.getElementById('wsRate').value = c.rate || 0.023;
+}
+
+// ── GOOGLE SHEET SYNC ──
+async function syncItem(item) {
+  const url = state.config.scriptUrl;
+  if (!url) return;
+  try {
+    await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'addQuote',
+        data: {
+          time: new Date().toLocaleString('zh-TW'),
+          name: item.name, cat: item.cat, type: item.type || 'normal',
+          krw: item.krw || 0, rate: item.rate || 1,
+          cost: Math.round(item.cost), price: item.price,
+          service: Math.round(item.service || 0),
+          profit: Math.round(item.profit),
+          shopeeProfit: Math.round(item.shopeeProfit || 0),
+          market: item.market || 0,
+          refund: item.refund || false,
+          refundFactor: item.refundFactor || 1,
+          note: item.note || ''
+        }
+      })
+    });
+  } catch(e) { console.log('Sheet sync error', e); }
+}
+
+async function syncToSheet() {
+  const url = state.config.scriptUrl;
+  if (!url) { alert('請先在設定頁填入 Apps Script Web App URL'); return; }
+  const items = state.quotes.filter(q => q.qty > 0);
+  if (items.length === 0) { alert('請先填入採買數量'); return; }
+
+  const normal = items.filter(q => q.type !== 'wholesale');
+  const ws = items.filter(q => q.type === 'wholesale');
+
+  try {
+    if (normal.length > 0) {
+      await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'syncPurchase',
+          data: normal.map(q => ({
+            name: q.name, cat: q.cat, type: q.type,
+            krw: q.krw || 0, cost: Math.round(q.cost),
+            price: q.price, qty: q.qty,
+            subtotalKrw: (q.krw || 0) * q.qty,
+            subtotalTwd: Math.round(q.cost * q.qty),
+            refund: q.refund || false,
+            note: q.note || '', modified: q.modified
+          }))
+        })
+      });
+    }
+    if (ws.length > 0) {
+      await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'syncWholesale',
+          data: ws.map(q => ({
+            name: q.name, krw: q.krw || 0, cost: Math.round(q.cost),
+            market: q.market || 0, price: q.price, qty: q.qty,
+            subtotalCost: Math.round(q.cost * q.qty),
+            subtotalSell: Math.round(q.price * q.qty),
+            profit: Math.round(q.profit * q.qty),
+            note: q.note || ''
+          }))
+        })
+      });
+    }
+    alert('✅ 已同步至 Google Sheet！');
+  } catch(e) { alert('同步失敗，請確認 Script URL 是否正確'); }
+}
+
+function copyScript() {
+  const script = `// Korea Proxy — Google Apps Script v2.0
+// 貼入後部署為 Web App（存取權：所有人）
+// 步驟：替換下方 SS_ID → 儲存 → 部署 → 新增部署 → 類型「網路應用程式」→ 複製 URL
+
+const SS_ID = '你的_SHEET_ID'; // ← 替換成你的 Google Sheet ID（網址列中的長字串）
+
+const CAT_CONFIG = {
+  'Olive Young': { prefix: 'OY' },
+  '藥局醫美':   { prefix: 'PH' },
+  '韓系潮牌':   { prefix: 'KF' },
+  '專櫃精品':   { prefix: 'LX' },
+  '電器3C':     { prefix: 'EC' },
+  '食品零食':   { prefix: 'FD' },
+  '文創周邊':   { prefix: 'CT' },
+  '韓國大創':   { prefix: 'DS' },
+  '其他小物':   { prefix: 'OT' }
+};
+
+const CAT_HEADERS = [
+  '貨號','時間','商品名稱','韓元售價','匯率','台幣成本','建議售價',
+  '服務費','毛利','蝦皮毛利','市價','退稅','採買數量','小計韓元','小計台幣','備註','已修改'
+];
+
+const WS_HEADERS = [
+  '貨號','時間','商品名稱','韓元進貨','台幣成本','台灣市價','販售價格',
+  '採買數量','小計成本','小計售價','總毛利','備註'
+];
+
+function doPost(e) {
+  try {
+    const payload = JSON.parse(e.postData.contents);
+    const ss = SpreadsheetApp.openById(SS_ID);
+
+    if (payload.action === 'addQuote') {
+      const d = payload.data;
+      if (d.type === 'wholesale') {
+        addWholesaleRow(ss, d.name, d.time, d.krw||0, d.cost, d.market||0, d.price, 0, 0, 0, 0, d.note||'');
+      } else {
+        const info = getCatSheet(ss, d.cat);
+        const sku = nextSku(info.sh, info.prefix);
+        info.sh.appendRow([
+          sku, d.time, d.name, d.krw||0, d.rate||0, d.cost, d.price,
+          d.service, d.profit, d.shopeeProfit||0, d.market||0,
+          d.refund ? '是' : '否', 0, 0, 0, d.note||'', ''
+        ]);
+      }
+    }
+
+    if (payload.action === 'syncPurchase') {
+      payload.data.forEach(function(d) {
+        const info = getCatSheet(ss, d.cat);
+        const row = findRowByName(info.sh, d.name);
+        if (row) {
+          info.sh.getRange(row, 13).setValue(d.qty);
+          info.sh.getRange(row, 14).setValue(d.subtotalKrw||0);
+          info.sh.getRange(row, 15).setValue(d.subtotalTwd||0);
+          info.sh.getRange(row, 17).setValue(d.modified ? '是' : '否');
+        }
+      });
+    }
+
+    if (payload.action === 'syncWholesale') {
+      payload.data.forEach(function(d) {
+        const sh = getWsSheet(ss);
+        const row = findRowByName(sh, d.name);
+        if (row) {
+          sh.getRange(row, 8).setValue(d.qty);
+          sh.getRange(row, 9).setValue(d.subtotalCost||0);
+          sh.getRange(row, 10).setValue(d.subtotalSell||0);
+          sh.getRange(row, 11).setValue(d.profit||0);
+        } else {
+          addWholesaleRow(ss, d.name, new Date().toLocaleString('zh-TW'),
+            d.krw||0, d.cost, d.market||0, d.price,
+            d.qty, d.subtotalCost||0, d.subtotalSell||0, d.profit||0, d.note||'');
+        }
+      });
+    }
+
+    refreshOverview(ss);
+
+    return ContentService.createTextOutput(JSON.stringify({ok:true}))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch(err) {
+    return ContentService.createTextOutput(JSON.stringify({ok:false, error:err.message}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function getCatSheet(ss, catName) {
+  const cfg = CAT_CONFIG[catName] || { prefix: 'OT' };
+  const name = CAT_CONFIG[catName] ? catName : '其他小物';
+  let sh = ss.getSheetByName(name);
+  if (!sh) {
+    sh = ss.insertSheet(name);
+    sh.appendRow(CAT_HEADERS);
+    sh.getRange(1, 1, 1, CAT_HEADERS.length)
+      .setFontWeight('bold').setBackground('#F5E8EB').setFontColor('#1C1818');
+    sh.setFrozenRows(1);
+    sh.setColumnWidth(1, 90);
+    sh.setColumnWidth(2, 130);
+    sh.setColumnWidth(3, 170);
+  }
+  return { sh: sh, prefix: cfg.prefix };
+}
+
+function getWsSheet(ss) {
+  let sh = ss.getSheetByName('批發');
+  if (!sh) {
+    sh = ss.insertSheet('批發');
+    sh.appendRow(WS_HEADERS);
+    sh.getRange(1, 1, 1, WS_HEADERS.length)
+      .setFontWeight('bold').setBackground('#F5EDE8').setFontColor('#1C1818');
+    sh.setFrozenRows(1);
+    sh.setColumnWidth(1, 90);
+    sh.setColumnWidth(2, 130);
+    sh.setColumnWidth(3, 170);
+  }
+  return sh;
+}
+
+function addWholesaleRow(ss, name, time, krw, cost, market, price, qty, subCost, subSell, profit, note) {
+  const sh = getWsSheet(ss);
+  const sku = nextSku(sh, 'WS');
+  sh.appendRow([sku, time, name, krw, cost, market, price, qty, subCost, subSell, profit, note]);
+}
+
+function nextSku(sh, prefix) {
+  const n = sh.getLastRow(); // header佔1行，第n行資料 → 貨號n
+  return prefix + '-' + String(n).padStart(3, '0');
+}
+
+function findRowByName(sh, name) {
+  const last = sh.getLastRow();
+  if (last < 2) return null;
+  const names = sh.getRange(2, 3, last - 1, 1).getValues();
+  for (var i = 0; i < names.length; i++) {
+    if (names[i][0] === name) return i + 2;
+  }
+  return null;
+}
+
+function refreshOverview(ss) {
+  let ov = ss.getSheetByName('總覽');
+  if (!ov) {
+    ov = ss.insertSheet('總覽', 0);
+    ov.appendRow(['品類','貨號前綴','品項數','總服務費(NT$)','總毛利(NT$)']);
+    ov.getRange(1, 1, 1, 5)
+      .setFontWeight('bold').setBackground('#1C1818').setFontColor('#FDFCFB');
+    ov.setFrozenRows(1);
+  }
+  const last = ov.getLastRow();
+  if (last > 1) ov.deleteRows(2, last - 1);
+
+  Object.keys(CAT_CONFIG).forEach(function(cat) {
+    const cfg = CAT_CONFIG[cat];
+    const sh = ss.getSheetByName(cat);
+    const rows = sh ? Math.max(0, sh.getLastRow() - 1) : 0;
+    let svc = 0, profit = 0;
+    if (rows > 0 && sh) {
+      sh.getRange(2, 8, rows, 2).getValues().forEach(function(r) {
+        svc += r[0]||0;
+        profit += r[1]||0;
+      });
+    }
+    ov.appendRow([cat, cfg.prefix, rows, Math.round(svc), Math.round(profit)]);
+  });
+
+  const wsSh = ss.getSheetByName('批發');
+  const wsRows = wsSh ? Math.max(0, wsSh.getLastRow() - 1) : 0;
+  let wsProfit = 0;
+  if (wsRows > 0 && wsSh) {
+    wsSh.getRange(2, 11, wsRows, 1).getValues().forEach(function(r) {
+      wsProfit += r[0]||0;
+    });
+  }
+  ov.appendRow(['批發', 'WS', wsRows, 0, Math.round(wsProfit)]);
+}`;
+  navigator.clipboard.writeText(script).then(() => alert('✅ 已複製 Apps Script 腳本 v2.0！'));
+}
+</script>
+</body>
+</html>
