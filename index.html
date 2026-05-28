@@ -864,10 +864,57 @@ window.onload = () => {
   document.getElementById('rate').value = state.config.rate;
   document.getElementById('daisoRate').value = state.config.rate;
   document.getElementById('wsRate').value = state.config.rate;
+loadFromSheet();
 };
 
 function save() { localStorage.setItem('krProxy', JSON.stringify(state)); }
+async function loadFromSheet() {
+  const url = state.config.scriptUrl || DEFAULT_SCRIPT_URL;
+  if (!url) return;
 
+  try {
+    const res = await fetch(url + '?action=listQuotes&ts=' + Date.now());
+    const json = await res.json();
+
+    if (!json.ok || !Array.isArray(json.data)) {
+      console.log('Load from Sheet skipped', json);
+      return;
+    }
+
+    state.quotes = json.data.map((item, idx) => ({
+      id: item.id || (Date.now() + idx),
+      name: item.name || '',
+      note: item.note || '',
+      qty: Number(item.qty || 0),
+      modified: !!item.modified,
+      krw: Number(item.krw || 0),
+      rate: Number(item.rate || state.config.rate || 0.023),
+      rawCost: Number(item.rawCost || item.cost || 0),
+      cost: Number(item.cost || 0),
+      service: Number(item.service || 0),
+      price: Number(item.price || 0),
+      profit: Number(item.profit || 0),
+      margin: Number(item.margin || 0),
+      shopeeProfit: Number(item.shopeeProfit || 0),
+      market: Number(item.market || 0),
+      refund: !!item.refund,
+      refundFactor: Number(item.refundFactor || 1),
+      type: item.type || 'normal',
+      cat: item.cat || '其他小物',
+      daisoLabel: item.daisoLabel || (item.cat === '韓國大創' ? '固定定價' : ''),
+      deliveryFee: Number(item.deliveryFee || 0),
+      bulky: !!item.bulky,
+      urgent: !!item.urgent
+    }));
+
+    save();
+    renderProgress();
+    renderQuoteList();
+    renderPurchase();
+  } catch(e) {
+    console.log('Load from Sheet error', e);
+  }
+}
 // ── PAGE SWITCH ──
 function switchPage(p, btn) {
   document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
