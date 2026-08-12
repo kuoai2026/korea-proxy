@@ -2,1771 +2,1437 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>代購試算 | Korea Proxy</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600&family=Noto+Sans+KR:wght@300;400;500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<title>辦公室零用金記帳</title>
 <style>
-  :root {
-    --bg: #F7F5F3;
-    --surface: #FDFCFB;
-    --surface2: #F1EDED;
-    --ink: #1C1818;
-    --ink-light: #6E6363;
-    --ink-xlight: #B5ADAD;
-    --rose: #C47D8A;
-    --rose-light: #D4A0AA;
-    --rose-pale: #F5E8EB;
-    --coral: #D4856A;
-    --coral-pale: #F5EDE8;
-    --green: #3D6B4F;
-    --green-pale: #E8F0EB;
-    --red: #8B3A3A;
-    --red-pale: #F5E8E8;
-    --amber: #8B6914;
-    --amber-pale: #F5EDD6;
-    --border: #E4DCDC;
-    --border-light: #EDE6E6;
-    --radius: 2px;
-    --radius-lg: 6px;
+  :root{
+    --bg:#f4f5f7;
+    --surface:#ffffff;
+    --line:#eef0f3;
+    --line-strong:#e3e6ea;
+    --text:#17181c;
+    --sub:#8b929c;
+    --muted:#b6bcc4;
+    --blue:#3182f6;
+    --blue-soft:#f0f6ff;
+    --red:#f04452;
+    --red-soft:#fef2f3;
+    --green:#16b378;
+    --green-soft:#f0faf6;
+    --radius:20px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,'Pretendard','Noto Sans TC','PingFang TC','Segoe UI',sans-serif;
+    background:var(--bg);color:var(--text);min-height:100vh;
+    -webkit-font-smoothing:antialiased;letter-spacing:-.01em;
   }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  /* ── Topbar ── */
+  .topbar{position:sticky;top:0;z-index:100;background:var(--surface);border-bottom:1px solid var(--line);}
+  .header{padding:16px 20px 12px;display:flex;justify-content:space-between;align-items:center;max-width:620px;margin:0 auto;}
+  .header-title{font-size:16px;font-weight:700;letter-spacing:-.02em;}
+  .balance-pill{color:var(--sub);font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;}
 
-  body {
-    font-family: 'Noto Sans KR', sans-serif;
-    background: var(--bg);
-    color: var(--ink);
-    min-height: 100vh;
-    font-size: 14px;
-    line-height: 1.6;
-  }
+  /* ── Nav ── */
+  .nav{display:flex;gap:4px;overflow-x:auto;max-width:620px;margin:0 auto;padding:0 14px 10px;scrollbar-width:none;}
+  .nav::-webkit-scrollbar{display:none;}
+  .nav-btn{flex:1;padding:8px 4px;border:none;background:none;cursor:pointer;font-size:13.5px;
+    color:var(--muted);white-space:nowrap;border-radius:10px;font-weight:600;transition:color .15s,background .15s;min-width:56px;}
+  .nav-btn:hover{color:var(--sub);}
+  .nav-btn.active{color:var(--text);background:#f2f3f5;font-weight:700;}
 
-  /* ── NAV ── */
-  nav {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0 32px; height: 56px;
-  }
-  .nav-brand {
-    font-family: 'Noto Serif KR', serif;
-    font-size: 15px; letter-spacing: 0.08em; color: var(--ink);
-    display: flex; align-items: center; gap: 10px;
-  }
-  .nav-brand span { color: var(--rose); font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; font-family: 'Noto Sans KR', sans-serif; }
-  .nav-tabs { display: flex; gap: 2px; }
-  .nav-tab {
-    padding: 6px 20px; font-size: 12px; letter-spacing: 0.08em;
-    border: 1px solid transparent; cursor: pointer;
-    background: none; color: var(--ink-light);
-    font-family: 'Noto Sans KR', sans-serif;
-    transition: all 0.2s; border-radius: var(--radius);
-  }
-  .nav-tab.active { background: var(--ink); color: var(--surface); border-color: var(--ink); }
-  .nav-tab:not(.active):hover { color: var(--ink); border-color: var(--border); }
+  /* ── Content ── */
+  .content{max-width:620px;margin:0 auto;padding:18px 14px 56px;}
 
-  /* ── LAYOUT ── */
-  .page { display: none; padding-top: 56px; min-height: 100vh; }
-  .page.active { display: block; }
+  /* ── Card ── */
+  .card{background:var(--surface);border-radius:var(--radius);padding:22px 20px;margin-bottom:12px;}
+  .card-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:18px;letter-spacing:-.02em;}
 
-  /* ── PROGRESS BAR ── */
-  .progress-bar-wrap {
-    background: var(--surface); border-bottom: 1px solid var(--border);
-    padding: 14px 32px; display: flex; align-items: center; gap: 20px;
-  }
-  .progress-label { font-size: 11px; letter-spacing: 0.1em; color: var(--ink-light); white-space: nowrap; }
-  .progress-track { flex: 1; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
-  .progress-fill { height: 100%; background: var(--rose); border-radius: 2px; transition: width 0.5s ease; }
-  .progress-pct { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--rose); }
-  .progress-amounts { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--ink-light); white-space: nowrap; }
+  /* ── Stats ── */
+  .balance-hero{text-align:left;padding:2px 0 22px;}
+  .balance-hero-label{font-size:13px;color:var(--sub);margin-bottom:6px;font-weight:500;}
+  .balance-hero-val{font-size:38px;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums;}
+  .stats-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .stat-box{background:#f8f9fa;border-radius:14px;padding:14px 16px;text-align:left;}
+  .stat-val{font-size:19px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;}
+  .c-green{color:var(--green);} .c-red{color:var(--red);} .c-blue{color:var(--blue);} .c-purple{color:#7c5cff;}
+  .stat-label{font-size:12px;color:var(--sub);margin-top:4px;font-weight:500;}
 
-  /* ── MAIN ── */
-  .main { max-width: 1100px; margin: 0 auto; padding: 32px; }
-  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-  @media (max-width: 800px) { .grid-2 { grid-template-columns: 1fr; } }
+  /* ── Form ── */
+  .form-group{margin-bottom:16px;}
+  label{display:block;font-size:13px;font-weight:600;color:var(--sub);margin-bottom:8px;letter-spacing:-.01em;}
+  input[type=text],input[type=number],input[type=date],select,textarea{
+    width:100%;padding:13px 14px;border:1px solid transparent;border-radius:12px;
+    font-size:15px;color:var(--text);background:#f5f6f8;outline:none;
+    transition:background .15s,border-color .15s;font-family:inherit;
+  }
+  input::placeholder{color:var(--muted);}
+  input:focus,select:focus,textarea:focus{background:var(--surface);border-color:var(--blue);}
+  select{appearance:none;-webkit-appearance:none;
+    background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1.5 6 6.5l5-5' stroke='%238b929c' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;}
 
-  /* ── CARD ── */
-  .card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius-lg); padding: 24px;
-  }
-  .card-title {
-    font-family: 'Noto Serif KR', serif;
-    font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase;
-    color: var(--ink-light); margin-bottom: 20px;
-    padding-bottom: 12px; border-bottom: 1px solid var(--border-light);
-    display: flex; align-items: center; gap: 8px;
-  }
-  .card-title::before {
-    content: ''; width: 3px; height: 13px;
-    background: var(--rose); display: inline-block;
-  }
+  /* ── Buttons ── */
+  .btn{padding:11px 18px;border-radius:12px;border:none;cursor:pointer;font-size:14px;font-weight:600;
+    font-family:inherit;transition:background .15s,opacity .15s;}
+  .btn-primary{background:var(--blue);color:#fff;width:100%;padding:15px;font-size:15.5px;font-weight:700;border-radius:14px;}
+  .btn-primary:hover{background:#2272e0;}
+  .btn-primary:active{opacity:.85;}
+  .btn-outline{background:#f2f3f5;color:var(--text);}
+  .btn-outline:hover{background:#e9ebee;}
+  .btn-secondary{background:#f2f3f5;color:var(--text);}
+  .btn-secondary:hover{background:#e9ebee;}
+  .btn-del{background:transparent;color:var(--muted);border:none;padding:6px 8px;font-size:12.5px;font-weight:600;border-radius:8px;}
+  .btn-del:hover{background:var(--red-soft);color:var(--red);}
 
-  /* ── FORM ── */
-  .field { margin-bottom: 16px; }
-  .field label {
-    display: block; font-size: 11px; letter-spacing: 0.1em;
-    color: var(--ink-light); margin-bottom: 6px; text-transform: uppercase;
-  }
-  .field input, .field select, .field textarea {
-    width: 100%; padding: 10px 12px;
-    background: var(--bg); border: 1px solid var(--border);
-    border-radius: var(--radius); color: var(--ink);
-    font-family: 'Noto Sans KR', sans-serif; font-size: 14px;
-    outline: none; transition: border-color 0.2s;
-  }
-  .field input:focus, .field select:focus { border-color: var(--rose); background: var(--surface); }
-  .field input[type="number"] { font-family: 'DM Mono', monospace; }
+  /* ── Type toggle ── */
+  .type-toggle{display:flex;gap:6px;margin-bottom:20px;background:#f5f6f8;padding:4px;border-radius:14px;}
+  .type-btn{flex:1;padding:10px;border:none;border-radius:11px;background:transparent;cursor:pointer;
+    text-align:center;font-size:14.5px;font-weight:600;color:var(--sub);font-family:inherit;transition:all .15s;}
+  .type-btn.sel-exp{background:var(--surface);color:var(--text);font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+  .type-btn.sel-inc{background:var(--surface);color:var(--text);font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.06);}
 
-  /* computed cost display */
-  .computed-cost {
-    padding: 10px 12px; background: var(--green-pale);
-    border: 1px solid var(--border); border-radius: var(--radius);
-    font-family: 'DM Mono', monospace; font-size: 14px; color: var(--green);
-  }
+  /* ── Person grid ── */
+  .person-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:4px;}
+  .p-chip{padding:10px 4px;border:1px solid var(--line-strong);border-radius:11px;text-align:center;
+    cursor:pointer;font-size:13.5px;color:var(--sub);font-weight:500;transition:all .15s;user-select:none;}
+  .p-chip:hover{border-color:var(--muted);color:var(--text);}
+  .p-chip.sel{border-color:var(--text);background:var(--text);color:#fff;font-weight:600;}
+  .person-label-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;}
+  .person-label-row label{margin-bottom:0;}
+  .person-edit-btn{padding:6px 12px;border-radius:9px;border:none;background:#f2f3f5;color:var(--sub);
+    font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit;}
+  .person-edit-btn:hover{background:#e9ebee;color:var(--text);}
+  .person-editor{margin-top:12px;padding:14px;border-radius:14px;background:#f8f9fa;}
+  .person-add-row,.person-edit-row{display:flex;gap:6px;align-items:center;}
+  .person-add-row{margin-bottom:12px;}
+  .person-edit-list{display:grid;gap:6px;}
+  .person-name-input{flex:1;min-width:0;padding:10px 12px!important;border-radius:10px!important;font-size:14px!important;background:#fff!important;}
+  .person-icon-btn{width:36px;height:36px;border-radius:10px;border:none;background:#eceef1;color:var(--sub);
+    font-size:16px;font-weight:700;line-height:1;cursor:pointer;flex:0 0 36px;font-family:inherit;}
+  .person-icon-btn.save{color:var(--green);background:var(--green-soft);}
+  .person-icon-btn.delete{color:var(--red);background:var(--red-soft);}
 
-  .toggle-row {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 10px 0; border-bottom: 1px solid var(--border-light);
-  }
-  .toggle-row:last-child { border-bottom: none; }
-  .toggle-label { font-size: 13px; color: var(--ink); }
-  .toggle-sub { font-size: 11px; color: var(--ink-light); }
-  .toggle {
-    position: relative; width: 40px; height: 22px;
-    background: var(--border); border-radius: 11px; cursor: pointer;
-    transition: background 0.2s; flex-shrink: 0;
-  }
-  .toggle.on { background: var(--rose); }
-  .toggle::after {
-    content: ''; position: absolute; top: 3px; left: 3px;
-    width: 16px; height: 16px; background: white; border-radius: 50%;
-    transition: left 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.15);
-  }
-  .toggle.on::after { left: 21px; }
+  /* ── Lunch amount inputs ── */
+  .lunch-detail-box{background:#f8f9fa;border-radius:14px;padding:16px;margin-top:12px;}
+  .lunch-row{display:flex;align-items:center;gap:12px;margin-bottom:8px;}
+  .lunch-row:last-child{margin-bottom:0;}
+  .lunch-name{min-width:56px;font-size:14px;font-weight:600;color:var(--text);}
+  .lunch-input-field{flex:1;background:#fff!important;}
 
-  /* ── CATEGORY PILLS ── */
-  .cat-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
-  .cat-pill {
-    padding: 7px 14px; border: 1px solid var(--border); border-radius: 20px;
-    font-size: 12px; cursor: pointer; color: var(--ink-light);
-    transition: all 0.15s; user-select: none; background: var(--surface);
-  }
-  .cat-pill:hover { border-color: var(--rose-light); color: var(--ink); }
-  .cat-pill.selected { background: var(--rose-pale); border-color: var(--rose); color: var(--rose); }
+  /* ── Balance bar ── */
+  .balance-bar{border-radius:12px;padding:13px 16px;margin-top:10px;display:flex;justify-content:space-between;
+    align-items:center;font-size:13.5px;transition:background .2s;}
+  .balance-bar.ok{background:var(--green-soft);}
+  .balance-bar.ng{background:var(--red-soft);}
+  .balance-bar.idle{background:#f5f6f8;}
+  .balance-bar.info{background:var(--blue-soft);}
+  .bal-diff.info{color:var(--blue);}
+  .bal-label{font-weight:500;color:var(--sub);font-variant-numeric:tabular-nums;}
+  .bal-diff{font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;}
+  .bal-diff.ok{color:var(--green);} .bal-diff.ng{color:var(--red);} .bal-diff.idle{color:var(--muted);}
 
-  /* ── DAISO TABS ── */
-  .daiso-wrap { margin-top: 4px; }
-  .daiso-tabs { display: flex; gap: 0; margin-bottom: 12px; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
-  .daiso-tab {
-    flex: 1; padding: 8px; text-align: center; font-size: 12px;
-    cursor: pointer; background: var(--bg); color: var(--ink-light);
-    transition: all 0.15s; border: none; font-family: 'Noto Sans KR', sans-serif;
-  }
-  .daiso-tab.active { background: var(--rose); color: white; }
-  .daiso-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-  .daiso-btn {
-    padding: 10px 6px; border: 1px solid var(--border); border-radius: var(--radius);
-    background: var(--surface); cursor: pointer; text-align: center;
-    transition: all 0.15s; font-family: 'Noto Sans KR', sans-serif;
-  }
-  .daiso-btn:hover { border-color: var(--rose-light); background: var(--rose-pale); }
-  .daiso-btn.selected { border-color: var(--rose); background: var(--rose-pale); }
-  .daiso-btn .d-krw { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--ink); font-weight: 500; }
-  .daiso-btn .d-twd { font-size: 11px; color: var(--rose); font-family: 'DM Mono', monospace; }
-  .daiso-manual { display: none; }
-  .daiso-manual.show { display: block; }
+  /* ── Ghost / secondary wide button ── */
+  .mega-btn{width:100%;padding:14px;border:none;border-radius:14px;cursor:pointer;font-size:14.5px;
+    font-weight:600;color:var(--text);background:#f2f3f5;font-family:inherit;transition:background .15s;}
+  .mega-btn:hover{background:#e9ebee;}
 
-  /* ── RESULT PANEL ── */
-  .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-  .result-item { padding: 14px; background: var(--bg); border-radius: var(--radius); }
-  .result-item.full { grid-column: 1 / -1; }
-  .result-item.refund-item { background: var(--green-pale); border: 1px solid #b8d8c4; }
-  .result-item label {
-    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
-    color: var(--ink-light); display: block; margin-bottom: 4px;
-  }
-  .result-item.refund-item label { color: var(--green); }
-  .result-item .val { font-family: 'DM Mono', monospace; font-size: 20px; color: var(--ink); }
-  .result-item .val.highlight { color: var(--coral); font-size: 24px; }
-  .result-item .val.positive { color: var(--green); }
-  .result-item .val.negative { color: var(--red); }
-  .result-item .refund-saving { font-size: 11px; color: var(--green); margin-top: 4px; }
+  /* ── Debt cards ── */
+  .debt-summary{background:var(--surface);border-radius:var(--radius);padding:24px 20px;margin-bottom:12px;}
+  .debt-summary-label{font-size:13px;color:var(--sub);font-weight:500;margin-bottom:6px;}
+  .debt-summary-val{font-size:36px;font-weight:800;letter-spacing:-.03em;color:var(--red);font-variant-numeric:tabular-nums;}
+  .debt-list{background:var(--surface);border-radius:var(--radius);padding:8px 20px;margin-bottom:12px;}
+  .debt-card{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 0;border-bottom:1px solid var(--line);}
+  .debt-card:last-child{border-bottom:none;}
+  .debt-card > div:first-child{flex:1;min-width:0;}
+  .debt-person-name{font-size:15.5px;font-weight:700;letter-spacing:-.02em;}
+  .debt-sub{font-size:12px;color:var(--muted);margin-top:5px;font-variant-numeric:tabular-nums;white-space:nowrap;}
+  .debt-right{display:flex;flex-direction:column;align-items:flex-end;gap:7px;flex-shrink:0;}
+  .debt-amt{font-size:16px;font-weight:700;text-align:right;font-variant-numeric:tabular-nums;}
+  .debt-amt.owes{color:var(--red);}
+  .debt-amt.clear{color:var(--muted);font-size:14px;font-weight:600;}
+  .debt-collect{padding:8px 14px;border:none;border-radius:10px;background:var(--blue-soft);color:var(--blue);
+    font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;transition:background .15s;}
+  .debt-collect:hover{background:#dfebff;}
 
-  /* ── SHOPEE BLOCK ── */
-  .shopee-block {
-    background: var(--surface2); border: 1px solid var(--border);
-    border-radius: var(--radius-lg); padding: 18px; margin-top: 16px;
-  }
-  .shopee-header {
-    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
-    color: var(--ink-light); margin-bottom: 14px;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .shopee-rows { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-  .shopee-item { padding: 10px; background: var(--surface); border-radius: var(--radius); }
-  .shopee-item label { font-size: 10px; letter-spacing: 0.1em; color: var(--ink-light); display: block; margin-bottom: 3px; }
-  .shopee-item .val { font-family: 'DM Mono', monospace; font-size: 15px; }
-  .shopee-verdict {
-    margin-top: 12px; padding: 10px 14px; border-radius: var(--radius);
-    font-size: 12px; letter-spacing: 0.05em; font-weight: 500;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .shopee-verdict.ok { background: var(--green-pale); color: var(--green); }
-  .shopee-verdict.warn { background: var(--amber-pale); color: var(--amber); }
-  .shopee-verdict.bad { background: var(--red-pale); color: var(--red); }
+  /* ── History ── */
+  .filter-bar{display:flex;gap:6px;margin-bottom:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;}
+  .filter-bar::-webkit-scrollbar{display:none;}
+  .f-chip{padding:7px 14px;border-radius:10px;border:none;background:#f5f6f8;color:var(--sub);
+    cursor:pointer;font-size:13px;white-space:nowrap;font-weight:600;font-family:inherit;transition:all .15s;}
+  .f-chip:hover{background:#eceef1;}
+  .f-chip.active{background:var(--text);color:#fff;}
+  .tx-row{padding:16px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:flex-start;}
+  .tx-row:last-child{border-bottom:none;}
+  .tx-badge{display:inline-block;font-size:13.5px;font-weight:600;color:var(--text);letter-spacing:-.01em;}
+  .badge-exp,.badge-inc{background:none;}
+  .tx-date{font-size:12px;color:var(--muted);margin-left:8px;font-variant-numeric:tabular-nums;}
+  .tx-detail{font-size:12.5px;color:var(--sub);margin-top:5px;line-height:1.6;}
+  .tx-amt{font-size:15.5px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.02em;}
 
-  /* ── WHOLESALE RESULT ── */
-  .ws-market-tag {
-    margin-top: 10px; padding: 8px 12px; border-radius: var(--radius);
-    font-size: 12px; display: flex; align-items: center; gap: 6px;
-  }
-  .ws-market-tag.ok { background: var(--green-pale); color: var(--green); }
-  .ws-market-tag.bad { background: var(--red-pale); color: var(--red); }
+  /* ── Modal ── */
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;z-index:999;padding:20px;}
+  .modal{background:var(--surface);border-radius:22px;padding:26px 24px 20px;max-width:340px;width:100%;}
+  .modal-title{font-size:17px;font-weight:700;margin-bottom:10px;letter-spacing:-.02em;}
+  .modal-msg{font-size:14px;color:var(--sub);margin-bottom:22px;line-height:1.6;}
+  .modal-btns{display:flex;gap:8px;}
 
-  /* ── BTN ── */
-  .btn {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 11px 22px; border-radius: var(--radius); cursor: pointer;
-    font-family: 'Noto Sans KR', sans-serif; font-size: 12px;
-    letter-spacing: 0.08em; border: none; transition: all 0.2s;
-  }
-  .btn-primary { background: var(--ink); color: var(--surface); }
-  .btn-primary:hover { background: #2d2828; }
-  .btn-rose { background: var(--rose); color: white; }
-  .btn-rose:hover { background: var(--rose-light); }
-  .btn-outline { background: none; border: 1px solid var(--border); color: var(--ink-light); }
-  .btn-outline:hover { border-color: var(--ink); color: var(--ink); }
-  .btn-sm { padding: 6px 12px; font-size: 11px; }
-  .btn-row { display: flex; gap: 10px; margin-top: 20px; }
+  .hidden{display:none!important;}
+  .empty{text-align:center;padding:44px 20px;color:var(--muted);font-size:14px;}
+  .empty-icon{font-size:32px;margin-bottom:12px;opacity:.5;}
 
-  /* ── PURCHASE PAGE ── */
-  .purchase-header {
-    background: var(--surface); border-bottom: 1px solid var(--border);
-    padding: 20px 32px; display: flex; align-items: flex-start; gap: 40px;
-  }
-  .total-display .label { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-light); }
-  .total-display .amount-krw { font-family: 'DM Mono', monospace; font-size: 28px; color: var(--ink); line-height: 1.2; }
-  .total-display .amount-twd { font-family: 'DM Mono', monospace; font-size: 16px; color: var(--rose); }
-  .total-summary { display: flex; gap: 32px; margin-left: auto; align-items: center; }
-  .summary-item { text-align: right; }
-  .summary-item .s-label { font-size: 10px; letter-spacing: 0.1em; color: var(--ink-xlight); text-transform: uppercase; }
-  .summary-item .s-val { font-family: 'DM Mono', monospace; font-size: 14px; color: var(--ink); }
+  /* ── Divider ── */
+  .divider{border:none;border-top:1px solid var(--line);margin:22px 0;}
 
-  /* ── TABLE ── */
-  .table-wrap { overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; }
-  thead th {
-    padding: 10px 14px; text-align: left;
-    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
-    color: var(--ink-light); border-bottom: 1px solid var(--border);
-    font-weight: 400; background: var(--surface);
-  }
-  tbody tr { border-bottom: 1px solid var(--border-light); transition: background 0.15s; }
-  tbody tr:hover { background: var(--surface2); }
-  tbody td { padding: 12px 14px; font-size: 13px; }
-  tbody td.mono { font-family: 'DM Mono', monospace; font-size: 12px; }
-  .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; letter-spacing: 0.06em; }
-  .badge-modified { background: var(--amber-pale); color: var(--amber); }
-  .badge-ws { background: var(--rose-pale); color: var(--rose); }
-
-  .qty-input {
-    width: 64px; padding: 5px 8px; text-align: center;
-    border: 1px solid var(--border); border-radius: var(--radius);
-    font-family: 'DM Mono', monospace; font-size: 13px;
-    background: var(--bg); color: var(--ink); outline: none;
-  }
-  .qty-input:focus { border-color: var(--rose); }
-  .edit-btn {
-    background: none; border: 1px solid var(--border-light); border-radius: var(--radius);
-    padding: 4px 10px; font-size: 11px; color: var(--ink-light); cursor: pointer;
-    transition: all 0.15s;
-  }
-  .edit-btn:hover { border-color: var(--rose); color: var(--rose); }
-
-  /* ── DIVIDER ── */
-  .divider { height: 1px; background: var(--border-light); margin: 20px 0; }
-
-  /* ── MODAL ── */
-  .modal-overlay {
-    display: none; position: fixed; inset: 0; z-index: 200;
-    background: rgba(28,24,24,0.5); backdrop-filter: blur(2px);
-    align-items: center; justify-content: center;
-  }
-  .modal-overlay.open { display: flex; }
-  .modal {
-    background: var(--surface); border-radius: var(--radius-lg);
-    border: 1px solid var(--border); padding: 28px; width: 420px; max-width: 90vw;
-  }
-  .modal-title {
-    font-family: 'Noto Serif KR', serif; font-size: 16px;
-    margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border-light);
-  }
-
-  /* ── EMPTY STATE ── */
-  .empty-state { text-align: center; padding: 60px 20px; color: var(--ink-xlight); }
-  .empty-state .icon { font-size: 40px; margin-bottom: 12px; opacity: 0.4; }
-  .empty-state p { font-size: 13px; letter-spacing: 0.05em; }
-
-  /* ── GS CONFIG ── */
-  .gs-notice {
-    background: var(--rose-pale); border: 1px solid var(--rose-light);
-    border-radius: var(--radius); padding: 12px 16px;
-    font-size: 12px; color: var(--rose); margin-top: 12px; line-height: 1.7;
-  }
-
-  /* ── UTILITIES ── */
-  .text-rose { color: var(--rose); }
-  .text-coral { color: var(--coral); }
-  .text-green { color: var(--green); }
-  .text-red { color: var(--red); }
-  .text-muted { color: var(--ink-light); }
-  .font-mono { font-family: 'DM Mono', monospace; }
-  .mt8 { margin-top: 8px; }
-  .mt16 { margin-top: 16px; }
-
-  .section-divider {
-    display: flex; align-items: center; gap: 12px; margin: 8px 0 16px;
-    font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--ink-xlight);
-  }
-  .section-divider::before, .section-divider::after {
-    content: ''; flex: 1; height: 1px; background: var(--border-light);
-  }
-
-  /* ── CUSTOM RATE ROW ── */
-  .custom-rate-row {
-    display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
-    background: var(--rose-pale); border: 1px solid var(--border); border-radius: var(--radius);
-    padding: 10px 14px;
-  }
-  .custom-rate-row label { font-size: 11px; letter-spacing: 0.1em; color: var(--ink-light); text-transform: uppercase; white-space: nowrap; margin: 0; }
-  .custom-rate-row input {
-    width: 80px; padding: 6px 10px; background: var(--surface);
-    border: 1px solid var(--border); border-radius: var(--radius);
-    font-family: 'DM Mono', monospace; font-size: 14px; color: var(--ink);
-    outline: none;
-  }
-  .custom-rate-row input:focus { border-color: var(--rose); }
-  .custom-rate-row span { font-size: 13px; color: var(--ink-light); }
-  .custom-rate-note { font-size: 11px; color: var(--ink-xlight); margin-left: auto; }
-
-  /* ── REFUND ROW ── */
-  .refund-rate-row {
-    display: flex; align-items: center; gap: 10px; margin-top: 8px; margin-bottom: 4px;
-    background: var(--green-pale); border: 1px solid #b8d8c4; border-radius: var(--radius);
-    padding: 10px 14px;
-  }
-  .refund-rate-row label { font-size: 11px; letter-spacing: 0.1em; color: var(--green); text-transform: uppercase; white-space: nowrap; margin: 0; }
-  .refund-rate-row input {
-    width: 80px; padding: 6px 10px; background: var(--surface);
-    border: 1px solid #b8d8c4; border-radius: var(--radius);
-    font-family: 'DM Mono', monospace; font-size: 14px; color: var(--green);
-    outline: none;
-  }
-  .refund-rate-row input:focus { border-color: var(--green); }
-  .refund-rate-row span { font-size: 12px; color: var(--green); }
-
-  /* purchase section header */
-  .section-head {
-    font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
-    color: var(--ink-light); padding: 16px 0 8px;
-    border-bottom: 1px solid var(--border-light); margin-bottom: 8px;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .section-head::before { content:''; width:3px; height:11px; background: var(--rose); display:inline-block; }
+  /* Settings */
+  .danger-zone{padding:0;}
+  .danger-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px;}
+  .checkbox-row{display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:12px;background:#f5f6f8;cursor:pointer;}
+  .checkbox-row input[type=checkbox]{width:19px;height:19px;accent-color:var(--blue);flex-shrink:0;}
+  .checkbox-row span{font-size:14.5px;color:var(--text);font-weight:500;}
+  .inline-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px;}
+  .sync-panel{background:#f8f9fa;border-radius:14px;padding:16px;margin-top:12px;margin-bottom:18px;}
+  .sync-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px;}
+  .sync-stat{background:var(--surface);border-radius:12px;padding:14px 8px;text-align:center;}
+  .sync-stat-val{font-size:18px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;}
+  .sync-stat-label{font-size:11.5px;color:var(--sub);margin-top:5px;font-weight:500;}
+  .sync-hint{font-size:12.5px;color:var(--sub);line-height:1.7;}
+  .sync-status-text{font-size:12.5px;color:var(--text);margin-top:10px;line-height:1.6;}
+  .sync-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:7px;vertical-align:middle;}
+  .sync-dot.synced{background:var(--green);}
+  .sync-dot.pending,.sync-dot.syncing{background:#f5a623;}
+  .sync-dot.failed{background:var(--red);}
+  .tx-sync{font-size:11.5px;margin-top:6px;}
+  .tx-sync-pill{display:inline-flex;align-items:center;font-weight:600;}
+  .tx-sync-pill.synced{color:var(--muted);}
+  .tx-sync-pill.pending,.tx-sync-pill.syncing{color:#f5a623;}
+  .tx-sync-pill.failed{color:var(--red);}
 </style>
 </head>
 <body>
 
-<!-- NAV -->
-<nav>
-  <div class="nav-brand">
-    代購試算
-    <span>Korea Proxy</span>
-  </div>
-  <div class="nav-tabs">
-    <button class="nav-tab active" onclick="switchPage('quote', this)">報價計算</button>
-    <button class="nav-tab" onclick="switchPage('purchase', this)">採買清單</button>
-    <button class="nav-tab" onclick="switchPage('config', this)">設定</button>
-  </div>
-</nav>
+<div class="topbar">
+  <header class="header">
+    <div class="header-title">辦公室零用金</div>
+    <div class="balance-pill" id="hBalance">餘額 $1,000</div>
+  </header>
 
-<!-- ═══════════════════════ PAGE: QUOTE ═══ -->
-<div class="page active" id="page-quote">
-
-  <div class="progress-bar-wrap">
-    <span class="progress-label">成本回收進度</span>
-    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
-    <span class="progress-pct" id="progressPct">0%</span>
-    <span class="progress-amounts" id="progressAmounts">NT$0 / NT$0</span>
-  </div>
-
-  <div class="main">
-    <div class="grid-2">
-
-      <!-- 左：輸入 -->
-      <div>
-        <div class="card">
-          <div class="card-title">商品資訊</div>
-
-          <div class="field">
-            <label>品類</label>
-            <div class="cat-pills" id="catPills">
-              <div class="cat-pill" data-cat="Olive Young" onclick="selectCat(this)">Olive Young</div>
-              <div class="cat-pill" data-cat="藥局醫美" onclick="selectCat(this)">藥局醫美</div>
-              <div class="cat-pill" data-cat="韓系潮牌" onclick="selectCat(this)">韓系潮牌</div>
-              <div class="cat-pill" data-cat="專櫃精品" onclick="selectCat(this)">專櫃精品</div>
-              <div class="cat-pill" data-cat="電器3C" onclick="selectCat(this)">電器 3C</div>
-              <div class="cat-pill" data-cat="食品零食" onclick="selectCat(this)">食品零食</div>
-              <div class="cat-pill" data-cat="文創周邊" onclick="selectCat(this)">文創周邊</div>
-              <div class="cat-pill" data-cat="韓國大創" onclick="selectCat(this)">韓國大創</div>
-              <div class="cat-pill" data-cat="批發" onclick="selectCat(this)">批發</div>
-              <div class="cat-pill" data-cat="其他小物" onclick="selectCat(this)">其他小物</div>
-            </div>
-          </div>
-
-          <div class="field">
-            <label>商品名稱</label>
-            <input type="text" id="itemName" placeholder="例：COSRX 蝸牛精華 100ml">
-          </div>
-
-          <!-- 一般品類 -->
-          <div id="normalFields">
-            <!-- 自訂加成% -->
-            <div class="custom-rate-row">
-              <label>加成比例</label>
-              <input type="number" id="customRate" min="0" max="999" step="1" placeholder="35" oninput="calc()">
-              <span>%</span>
-              <span class="custom-rate-note" id="customRateNote">品類預設</span>
-            </div>
-
-            <div class="field">
-              <label>韓元售價（₩）</label>
-              <input type="number" id="krwPrice" placeholder="0" oninput="calc()">
-            </div>
-
-            <div class="field">
-              <label>當日匯率（₩1 = NT$?）</label>
-              <input type="number" id="rate" step="0.001" placeholder="0.023" oninput="calc()">
-            </div>
-
-            <div id="weightRow" class="field" style="display:none">
-              <label>重量（kg）— 韓國直送模式</label>
-              <input type="number" id="weight" step="0.1" placeholder="0.5" oninput="calc()">
-            </div>
-
-            <div class="divider"></div>
-
-            <div class="toggle-row">
-              <div>
-                <div class="toggle-label">大體積</div>
-                <div class="toggle-sub">無法壓縮的商品，加收空間費</div>
-              </div>
-              <div class="toggle" id="toggleBulky" onclick="toggleSwitch('toggleBulky'); calc()"></div>
-            </div>
-            <div class="toggle-row">
-              <div>
-                <div class="toggle-label">急件</div>
-                <div class="toggle-sub">額外 +10%</div>
-              </div>
-              <div class="toggle" id="toggleUrgent" onclick="toggleSwitch('toggleUrgent'); calc()"></div>
-            </div>
-            <div class="toggle-row">
-              <div>
-                <div class="toggle-label">退稅</div>
-                <div class="toggle-sub">套用退稅係數，降低計算成本</div>
-              </div>
-              <div class="toggle" id="toggleRefund" onclick="toggleSwitch('toggleRefund'); onRefundToggle()"></div>
-            </div>
-            <div id="refundFactorWrap" style="display:none">
-              <div class="refund-rate-row">
-                <label>退稅係數</label>
-                <input type="number" id="refundFactor" min="0.5" max="1" step="0.01" value="0.92" oninput="calc()">
-                <span>（退稅後成本 = ₩ × 匯率 × 係數）</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- 韓國大創 -->
-          <div id="daisoFields" style="display:none">
-            <div class="daiso-wrap">
-              <div class="daiso-tabs">
-                <button class="daiso-tab active" onclick="switchDaisoMode('preset', this)">選區間</button>
-                <button class="daiso-tab" onclick="switchDaisoMode('manual', this)">自行輸入</button>
-              </div>
-
-              <!-- 預設區間 -->
-              <div id="daisoPreset">
-                <div class="daiso-grid">
-                  <div class="daiso-btn" data-krw="500" data-price="39" onclick="selectDaiso(this)">
-                    <div class="d-krw">₩500</div>
-                    <div class="d-twd">→ NT$39</div>
-                  </div>
-                  <div class="daiso-btn" data-krw="1000" data-price="49" onclick="selectDaiso(this)">
-                    <div class="d-krw">₩1,000</div>
-                    <div class="d-twd">→ NT$49</div>
-                  </div>
-                  <div class="daiso-btn" data-krw="1500" data-price="59" onclick="selectDaiso(this)">
-                    <div class="d-krw">₩1,500</div>
-                    <div class="d-twd">→ NT$59</div>
-                  </div>
-                  <div class="daiso-btn" data-krw="2000" data-price="79" onclick="selectDaiso(this)">
-                    <div class="d-krw">₩2,000</div>
-                    <div class="d-twd">→ NT$79</div>
-                  </div>
-                  <div class="daiso-btn" data-krw="3000" data-price="115" onclick="selectDaiso(this)">
-                    <div class="d-krw">₩3,000</div>
-                    <div class="d-twd">→ NT$115</div>
-                  </div>
-                  <div class="daiso-btn" data-krw="5000" data-price="179" onclick="selectDaiso(this)">
-                    <div class="d-krw">₩5,000</div>
-                    <div class="d-twd">→ NT$179</div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- 手動輸入 -->
-              <div id="daisoManual" class="daiso-manual">
-                <div class="custom-rate-row" style="margin-top:8px">
-                  <label>加成比例</label>
-                  <input type="number" id="daisoCustomRate" min="0" step="1" placeholder="30" oninput="calcDaiso()">
-                  <span>%</span>
-                </div>
-                <div class="field">
-                  <label>韓元售價（₩）</label>
-                  <input type="number" id="daisoKrw" placeholder="0" oninput="calcDaiso()">
-                </div>
-                <div class="field">
-                  <label>當日匯率（₩1 = NT$?）</label>
-                  <input type="number" id="daisoRate" step="0.001" placeholder="0.023" oninput="calcDaiso()">
-                </div>
-              </div>
-            </div>
-
-            <div class="divider"></div>
-            <div class="toggle-row">
-              <div>
-                <div class="toggle-label">急件</div>
-                <div class="toggle-sub">額外 +10%</div>
-              </div>
-              <div class="toggle" id="toggleDaisoUrgent" onclick="toggleSwitch('toggleDaisoUrgent'); calcDaiso()"></div>
-            </div>
-            <!-- 大創退稅 toggle -->
-            <div class="toggle-row">
-              <div>
-                <div class="toggle-label">退稅</div>
-                <div class="toggle-sub">自行輸入：套用退稅係數；選區間：僅更新毛利</div>
-              </div>
-              <div class="toggle" id="toggleDaisoRefund" onclick="toggleSwitch('toggleDaisoRefund'); onDaisoRefundToggle()"></div>
-            </div>
-            <div id="daisoRefundFactorWrap" style="display:none">
-              <div class="refund-rate-row">
-                <label>退稅係數</label>
-                <input type="number" id="daisoRefundFactor" min="0.5" max="1" step="0.01" value="0.92" oninput="calcDaiso()">
-                <span>（退稅後成本 = ₩ × 匯率 × 係數）</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- 批發（韓元進貨） -->
-          <div id="wholesaleFields" style="display:none">
-            <div class="field">
-              <label>韓元進貨成本（₩）</label>
-              <input type="number" id="wsKrw" placeholder="0" oninput="calcWholesale()">
-            </div>
-            <div class="field">
-              <label>當日匯率（₩1 = NT$?）</label>
-              <input type="number" id="wsRate" step="0.001" placeholder="0.023" oninput="calcWholesale()">
-            </div>
-            <div class="field">
-              <label>台幣成本（自動換算）</label>
-              <div class="computed-cost" id="wsComputedCost">—</div>
-            </div>
-            <div class="field">
-              <label>台灣市價（NT$）</label>
-              <input type="number" id="wsMarket" placeholder="0" oninput="calcWholesale()">
-            </div>
-            <div class="field">
-              <label>你的販售價格（NT$）</label>
-              <input type="number" id="wsPrice" placeholder="0" oninput="calcWholesale()">
-            </div>
-          </div>
-
-          <div class="field mt16">
-            <label>備註（選填）</label>
-            <input type="text" id="itemNote" placeholder="店名、規格、顏色…">
-          </div>
-
-          <div class="btn-row">
-            <button class="btn btn-primary" onclick="submitQuote()">確認加入 →</button>
-            <button class="btn btn-outline" onclick="clearForm()">清除</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- 右：輸出 -->
-      <div>
-        <div class="card">
-          <div class="card-title">試算結果</div>
-          <div id="resultEmpty" class="empty-state">
-            <div class="icon">₩</div>
-            <p>輸入商品資訊後<br>即時顯示報價</p>
-          </div>
-          <div id="resultContent" style="display:none">
-            <div class="result-grid">
-              <div class="result-item" id="rCostRow">
-                <label id="rCostLabel">台幣成本</label>
-                <div class="val" id="rCost">—</div>
-              </div>
-              <!-- 退稅後成本（退稅開啟時顯示） -->
-              <div class="result-item refund-item" id="rRefundRow" style="display:none">
-                <label>退稅後成本</label>
-                <div class="val" id="rRefundCost" style="color:var(--green)">—</div>
-                <div class="refund-saving" id="rRefundSaving"></div>
-              </div>
-              <div class="result-item" id="rServiceRow">
-                <label>服務費</label>
-                <div class="val" id="rService">—</div>
-              </div>
-              <div class="result-item full">
-                <label>建議售價（5的倍數）</label>
-                <div class="val highlight" id="rPrice">—</div>
-              </div>
-              <div class="result-item">
-                <label>毛利</label>
-                <div class="val positive" id="rProfit">—</div>
-              </div>
-              <div class="result-item">
-                <label>毛利率</label>
-                <div class="val positive" id="rMargin">—</div>
-              </div>
-            </div>
-            <div id="rExtras" style="font-size:11px; color:var(--ink-light); line-height:1.8; margin-bottom:8px;"></div>
-            <div id="rMarketTag" style="display:none"></div>
-
-            <div class="shopee-block">
-              <div class="shopee-header">🛒 蝦皮販售試算（手續費 14.5%）</div>
-              <div class="shopee-rows">
-                <div class="shopee-item"><label>蝦皮手續費</label><div class="val" id="rShopeeFee">—</div></div>
-                <div class="shopee-item"><label>蝦皮實收</label><div class="val" id="rShopeeNet">—</div></div>
-                <div class="shopee-item"><label>蝦皮毛利</label><div class="val" id="rShopeeProfit">—</div></div>
-              </div>
-              <div class="shopee-verdict" id="rShopeeVerdict"></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="card" style="margin-top:20px">
-          <div class="card-title">本次報價清單</div>
-          <div id="quoteListEmpty" class="empty-state" style="padding:30px"><p>尚無報價項目</p></div>
-          <div id="quoteList"></div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <nav class="nav">
+    <button class="nav-btn active" onclick="tab('overview')">總覽</button>
+    <button class="nav-btn" onclick="tab('add')">新增</button>
+    <button class="nav-btn" onclick="tab('debt')">欠款</button>
+    <button class="nav-btn" onclick="tab('history')">記錄</button>
+    <button class="nav-btn" onclick="tab('settings')">設定</button>
+  </nav>
 </div>
 
-<!-- ═══════════════════════ PAGE: PURCHASE ═══ -->
-<div class="page" id="page-purchase">
-  <div class="purchase-header">
-    <div class="total-display">
-      <div class="label">總採買金額</div>
-      <div class="amount-krw" id="totalKrw">₩ 0</div>
-      <div class="amount-twd" id="totalTwd">NT$ 0</div>
-    </div>
-    <div class="total-summary">
-      <div class="summary-item">
-        <div class="s-label">預估服務費</div>
-        <div class="s-val" id="sumService">NT$0</div>
-      </div>
-      <div class="summary-item">
-        <div class="s-label">預估總售價</div>
-        <div class="s-val" id="sumSell">NT$0</div>
-      </div>
-      <div class="summary-item">
-        <div class="s-label">預估毛利</div>
-        <div class="s-val" id="sumProfit">NT$0</div>
-      </div>
-      <button class="btn btn-rose" onclick="syncToSheet()">同步至 Google Sheet ↗</button>
-    </div>
-  </div>
+<div class="content">
 
-  <div class="main" style="padding-top:24px">
+  <!-- ═══ 總覽 ═══ -->
+  <div id="tab-overview">
     <div class="card">
-      <div class="card-title">採買清單</div>
-      <div id="purchaseEmpty" class="empty-state">
-        <div class="icon">🛍</div>
-        <p>先在報價頁確認商品後<br>此處會自動帶入</p>
+      <div class="balance-hero">
+        <div class="balance-hero-label">目前零用金餘額</div>
+        <div class="balance-hero-val" id="mainBal">$1,000</div>
       </div>
-      <div id="purchaseWrap" style="display:none">
-        <!-- 一般品類 -->
-        <div id="normalSection">
-          <div class="section-head">一般代購品項</div>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>商品名稱</th><th>品類</th><th>韓元單價</th><th>台幣成本</th>
-                  <th>採買數量</th><th>小計（₩）</th><th>小計（NT$）</th><th>備註</th><th></th>
-                </tr>
-              </thead>
-              <tbody id="purchaseTbody"></tbody>
-            </table>
-          </div>
-        </div>
-        <!-- 批發品類 -->
-        <div id="wholesaleSection" style="display:none; margin-top:24px">
-          <div class="section-head">批發品項</div>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>商品名稱</th><th>韓元進貨</th><th>台幣成本</th><th>台灣市價</th><th>販售價格</th>
-                  <th>採買數量</th><th>小計成本</th><th>小計售價</th><th>備註</th><th></th>
-                </tr>
-              </thead>
-              <tbody id="wholesaleTbody"></tbody>
-            </table>
-          </div>
-        </div>
+      <div class="stats-row">
+        <div class="stat-box"><div class="stat-val c-green" id="s-income">$0</div><div class="stat-label">累計收入</div></div>
+        <div class="stat-box"><div class="stat-val c-red" id="s-expense">$0</div><div class="stat-label">累計支出</div></div>
       </div>
     </div>
-  </div>
-</div>
 
-<!-- ═══════════════════════ PAGE: CONFIG ═══ -->
-<div class="page" id="page-config">
-  <div class="main">
-    <div class="grid-2">
-      <div class="card">
-        <div class="card-title">行程設定</div>
-        <div class="field"><label>機票+住宿總費用（NT$）</label><input type="number" id="cfgTrip" placeholder="25000" oninput="saveConfig()"></div>
-        <div class="field"><label>行程天數</label><input type="number" id="cfgDays" placeholder="5" oninput="saveConfig()"></div>
-        <div class="field"><label>預設匯率（₩1 = NT$?）</label><input type="number" id="cfgRate" step="0.001" placeholder="0.023" oninput="saveConfig()"></div>
-        <div class="field">
-          <label>配送方式</label>
-          <select id="cfgShip" onchange="saveConfig()">
-            <option value="self">自帶回台</option>
-            <option value="intl">韓國直送（NT$110/kg）</option>
+    <div class="card">
+      <div class="card-title">待收欠款</div>
+      <div style="margin-bottom:18px;">
+        <div style="font-size:12.5px;color:var(--sub);margin-bottom:6px;">同仁尚未繳納午餐費</div>
+        <div class="stat-val c-red" style="font-size:30px;" id="s-owing">$0</div>
+      </div>
+      <button class="mega-btn" onclick="tab('debt')">查看個人欠款明細</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">最近記錄</div>
+      <div id="recent-list"><div class="empty"><div class="empty-icon">📝</div>還沒有任何記錄</div></div>
+    </div>
+  </div>
+
+  <!-- ═══ 新增 ═══ -->
+  <div id="tab-add" class="hidden">
+    <div class="card">
+      <div class="card-title">新增記錄</div>
+
+      <div class="type-toggle">
+        <button class="type-btn sel-exp" id="btn-exp" onclick="setType('expense')">支出</button>
+        <button class="type-btn" id="btn-inc" onclick="setType('income')">收入</button>
+      </div>
+
+      <div class="form-group">
+        <label>日期</label>
+        <input type="date" id="f-date">
+      </div>
+
+      <!-- 支出區 -->
+      <div id="sec-expense">
+        <div class="form-group">
+          <label>支出類型</label>
+          <select id="exp-cat" onchange="onExpCat()">
+            <option value="lunch">🍱 午餐費用代墊</option>
+            <option value="shipping">📦 廠商運費</option>
+            <option value="boss_treat">🎁 老闆請客</option>
+            <option value="reimbursement">🧾 請款</option>
+            <option value="other_expense">📌 其他</option>
           </select>
         </div>
-        <div class="field"><label>大體積空間費（NT$）</label><input type="number" id="cfgBulky" placeholder="100" oninput="saveConfig()"></div>
-      </div>
 
-      <div class="card">
-        <div class="card-title">各品類加成比例</div>
-        <div class="field"><label>Olive Young（%）</label><input type="number" id="r_OliveYoung" value="45" oninput="saveConfig()"></div>
-        <div class="field"><label>藥局醫美（%）</label><input type="number" id="r_藥局醫美" value="25" oninput="saveConfig()"></div>
-        <div class="field"><label>韓系潮牌（%）</label><input type="number" id="r_韓系潮牌" value="35" oninput="saveConfig()"></div>
-        <div class="field"><label>專櫃精品（%）</label><input type="number" id="r_專櫃精品" value="12" oninput="saveConfig()"></div>
-        <div class="field"><label>電器 3C（%）</label><input type="number" id="r_電器3C" value="20" oninput="saveConfig()"></div>
-        <div class="field"><label>食品零食（%）</label><input type="number" id="r_食品零食" value="45" oninput="saveConfig()"></div>
-        <div class="field"><label>文創周邊（%）</label><input type="number" id="r_文創周邊" value="50" oninput="saveConfig()"></div>
-        <div class="field"><label>其他小物（%）</label><input type="number" id="r_其他小物" value="40" oninput="saveConfig()"></div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">Google Sheet 串接</div>
-        <div class="field"><label>Apps Script Web App URL</label><input type="text" id="cfgScriptUrl" placeholder="https://script.google.com/macros/s/..." oninput="saveConfig()"></div>
-        <div class="gs-notice">
-          📋 <strong>串接步驟（v2.0 — 每品類獨立分頁）：</strong><br>
-          1. 點擊下方「複製 Apps Script 腳本」<br>
-          2. 開啟你的 Google Sheet → 複製網址列中的 Sheet ID（兩個 / 之間的長字串）<br>
-          3. 擴充功能 → Apps Script → 貼入腳本<br>
-          4. 將第一行 <strong>SS_ID</strong> 的值替換成你的 Sheet ID<br>
-          5. 儲存 → 部署 → 新增部署 → 類型「網路應用程式」→ 存取權「所有人」<br>
-          6. 複製 Web App URL 貼入上方欄位<br><br>
-          📊 <strong>自動建立分頁：</strong>總覽、Olive Young（OY）、藥局醫美（PH）、韓系潮牌（KF）、專櫃精品（LX）、電器3C（EC）、食品零食（FD）、文創周邊（CT）、韓國大創（DS）、批發（WS）、其他小物（OT）
+        <!-- 午餐區 -->
+        <div id="sec-lunch">
+          <div class="form-group">
+            <label>本餐總金額（零用金代墊總計）</label>
+            <input type="number" id="lunch-grand-total" placeholder="請先輸入本餐總金額" min="0" oninput="calcLunchTotal()">
+          </div>
+          <div class="form-group">
+            <div class="person-label-row">
+              <label>選擇用餐人員（可複選）</label>
+              <button type="button" class="person-edit-btn" id="person-edit-toggle" onclick="togglePersonEditor()">編輯</button>
+            </div>
+            <div class="person-grid" id="person-grid"></div>
+            <div class="person-editor hidden" id="person-editor">
+              <div class="person-add-row">
+                <input type="text" class="person-name-input" id="person-new-name" placeholder="輸入新增人員名稱">
+                <button type="button" class="btn btn-outline" onclick="addPerson()">新增人員</button>
+              </div>
+              <div class="person-edit-list" id="person-edit-list"></div>
+            </div>
+          </div>
+          <div id="sec-lunch-amt" class="hidden">
+            <div class="lunch-detail-box">
+              <label style="margin-bottom:10px;display:block;">各人餐費金額</label>
+              <div id="lunch-inputs"></div>
+            </div>
+            <!-- 餘額狀態列 -->
+            <div class="balance-bar idle" id="balance-bar">
+              <span class="bal-label" id="bal-label">已分配 $0 ／ 總計 $0</span>
+              <span class="bal-diff idle" id="bal-diff">待填寫</span>
+            </div>
+          </div>
         </div>
-        <button class="btn btn-outline mt16" style="margin-top:16px" onclick="copyScript()">複製 Apps Script 腳本</button>
+
+        <!-- 其他支出金額 -->
+        <div id="sec-other-exp" class="hidden">
+          <div class="form-group">
+            <label>金額</label>
+            <input type="number" id="other-exp-amt" placeholder="請輸入金額" min="0">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>備註（選填）</label>
+          <input type="text" id="exp-note" placeholder="備註...">
+        </div>
+      </div>
+
+      <!-- 收入區 -->
+      <div id="sec-income" class="hidden">
+        <div class="form-group">
+          <label>收入類型</label>
+          <select id="inc-cat" onchange="onIncCat()">
+            <option value="lunch_return">🙋 午餐錢代墊返還</option>
+            <option value="sales_buy">💼 業代購買商品</option>
+            <option value="staff_buy">👤 同仁購買商品</option>
+            <option value="pharmacist_income">💊 郭藥師入帳</option>
+            <option value="other_inc">📋 其他</option>
+          </select>
+        </div>
+        <div id="sec-inc-person">
+          <div class="form-group">
+            <label>人員</label>
+            <select id="inc-person"></select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>金額（實際入帳）</label>
+          <input type="number" id="inc-amt" placeholder="請輸入金額" min="0" oninput="calcChange()">
+        </div>
+        <div class="form-group">
+          <label>對方給的現金（選填，只用來算找零）</label>
+          <input type="number" id="inc-received" placeholder="例如對方拿 $100" min="0" oninput="calcChange()">
+          <div class="balance-bar idle" id="change-bar">
+            <span class="bal-label" id="change-label">應收 $0 ／ 實收 $0</span>
+            <span class="bal-diff idle" id="change-diff">待填寫</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>備註（選填）</label>
+          <input type="text" id="inc-note" placeholder="備註...">
+        </div>
+      </div>
+
+      <button class="btn btn-primary" onclick="submit()">新增記錄</button>
+    </div>
+  </div>
+
+  <!-- ═══ 欠款 ═══ -->
+  <div id="tab-debt" class="hidden">
+    <button class="mega-btn" style="margin-bottom:12px;" onclick="renderDebt()">重新計算欠款</button>
+    <div id="debt-results"></div>
+  </div>
+
+  <!-- ═══ 記錄 ═══ -->
+  <div id="tab-history" class="hidden">
+    <div class="card">
+      <div class="filter-bar">
+        <button class="f-chip active" onclick="setFilter('all',this)">全部</button>
+        <button class="f-chip" onclick="setFilter('expense',this)">支出</button>
+        <button class="f-chip" onclick="setFilter('income',this)">收入</button>
+        <button class="f-chip" onclick="setFilter('lunch',this)">午餐</button>
+        <button class="f-chip" onclick="setFilter('lunch_return',this)">繳款</button>
+      </div>
+      <div id="history-list"></div>
+    </div>
+  </div>
+
+  <!-- ═══ 設定 ═══ -->
+  <div id="tab-settings" class="hidden">
+    <div class="card">
+      <div class="card-title">基本設定</div>
+      <div class="form-group">
+        <label>初始金額（$）</label>
+        <input type="number" id="init-bal" min="0">
+      </div>
+      <p style="font-size:12.5px;color:var(--sub);line-height:1.6;">此金額為零用金的起始本金，修改後餘額會重新計算。</p>
+
+      <hr class="divider">
+
+      <div class="card-title" style="margin-bottom:16px;">Google Sheet 共用同步</div>
+      <div class="form-group">
+        <label>Google Apps Script Web App URL</label>
+        <input type="text" id="sheet-url" placeholder="請貼上部署後的 Web App URL">
+      </div>
+      <div class="form-group">
+        <label>同步模式</label>
+        <label class="checkbox-row">
+          <input type="checkbox" id="auto-sync-enabled">
+          <span>以 Google Sheet 作為共用主資料來源</span>
+        </label>
+      </div>
+      <div class="inline-actions">
+        <button class="btn btn-secondary" onclick="testSyncConnection()">測試連線</button>
+        <button class="btn btn-secondary" onclick="syncFromCloud()">重新讀取雲端資料</button>
+      </div>
+      <div class="sync-panel">
+        <div class="sync-hint">這一版會以 Google Sheet 當主資料來源。電腦、手機、同事只要打開同一個網址，就會讀到同一份帳本；本機 `localStorage` 只拿來做暫時快取。</div>
+        <div class="sync-status-text" id="sync-status-text">尚未設定 Google Sheet 共用同步。</div>
+        <div class="sync-stats">
+          <div class="sync-stat">
+            <div class="sync-stat-val" id="sync-count-synced">-</div>
+            <div class="sync-stat-label">雲端記錄</div>
+          </div>
+          <div class="sync-stat">
+            <div class="sync-stat-val" id="sync-count-pending">-</div>
+            <div class="sync-stat-label">最後更新</div>
+          </div>
+          <div class="sync-stat">
+            <div class="sync-stat-val" id="sync-count-failed">-</div>
+            <div class="sync-stat-label">同步狀態</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" onclick="saveSettings()">儲存設定</button>
+    </div>
+
+    <div class="card">
+      <div class="danger-zone">
+        <div class="danger-title">危險操作</div>
+        <p style="font-size:13px;color:var(--sub);margin-bottom:16px;line-height:1.6;">清除所有記錄，此操作<strong>無法復原</strong>，請謹慎操作。</p>
+        <button class="btn" style="background:var(--red-soft);color:var(--red);font-size:13.5px;padding:11px 18px;" onclick="confirmClear()">清除所有資料</button>
       </div>
     </div>
   </div>
-</div>
 
-<!-- EDIT MODAL -->
-<div class="modal-overlay" id="editModal">
+</div><!-- /content -->
+
+<!-- ═══ Modal ═══ -->
+<div class="overlay hidden" id="modal">
   <div class="modal">
-    <div class="modal-title">編輯商品</div>
-    <div class="field"><label>商品名稱</label><input type="text" id="editName"></div>
-    <div id="editNormalFields">
-      <div class="field"><label>韓元單價（₩）</label><input type="number" id="editKrw"></div>
-    </div>
-    <div id="editWsFields" style="display:none">
-      <div class="field"><label>韓元進貨成本（₩）</label><input type="number" id="editWsKrw"></div>
-      <div class="field"><label>匯率（₩1=NT$?）</label><input type="number" id="editWsRate" step="0.001"></div>
-      <div class="field"><label>台灣市價（NT$）</label><input type="number" id="editWsMarket"></div>
-      <div class="field"><label>販售價格（NT$）</label><input type="number" id="editWsPrice"></div>
-    </div>
-    <div class="field"><label>備註</label><input type="text" id="editNote"></div>
-    <div class="btn-row">
-      <button class="btn btn-primary" onclick="saveEdit()">儲存</button>
-      <button class="btn btn-outline" onclick="closeModal()">取消</button>
+    <div class="modal-title" id="modal-title"></div>
+    <div class="modal-msg" id="modal-msg"></div>
+    <div class="modal-btns">
+      <button class="btn btn-outline" style="flex:1;padding:14px;" onclick="closeModal()">取消</button>
+      <button class="btn" style="flex:1;padding:14px;background:var(--red);color:#fff;" id="modal-ok">確認</button>
     </div>
   </div>
 </div>
 
 <script>
-// ── STATE ──
-const DEFAULT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxrDki8e6lfDleSvcqxgMwBImrcXvI4sgwdhIt_nYnos-6b0PeSWKg6FEVp6SD_FgM/exec';;
-let state = {
-  config: {
-    trip: 25000, days: 5, rate: 0.023, ship: 'self', bulky: 100,
-    scriptUrl: DEFAULT_SCRIPT_URL,
-    rates: {
-      'Olive Young': 45, '藥局醫美': 25, '韓系潮牌': 35, '專櫃精品': 12,
-      '電器3C': 20, '食品零食': 45, '文創周邊': 50, '其他小物': 40,
-      '韓國大創': 30, '批發': 0
-    }
-  },
-  quotes: [],
-  selectedCat: '',
-  daisoMode: 'preset',
-  selectedDaiso: null,
-  editingIdx: null
+const DEFAULT_PERSONS = ['琪琪','嘟姐','Wendy','姿閔','羿寧','奕妏','怡臻','老闆','阿姨','業代','麗如','明宏','其他'];
+const PERSON_STORAGE_KEY = 'pf_persons';
+const PERSON_VERSION_KEY = 'pf_persons_version';
+const PERSON_LIST_VERSION = 2;      // 之後還要強制補人員時，把這個數字 +1
+const REQUIRED_PERSONS = ['明宏'];  // 這一版要確保每台裝置都有的人員
+const PERSON_NAME_ALIASES = {
+  '弈妏': '奕妏',
+  '臨時人員': '麗如'
 };
 
-const CATS = ['Olive Young','藥局醫美','韓系潮牌','專櫃精品','電器3C','食品零食','文創周邊','韓國大創','批發','其他小物'];
+// 餐費由公司吸收、不需要繳回零用金的人；仍可選為用餐人員，只是不列入欠款統計
+const NO_DEBT_PERSONS = ['阿姨'];
 
-window.onload = () => {
-  const saved = localStorage.getItem('krProxy');
-  if (saved) {
-    const parsed = JSON.parse(saved);
-    // migrate old 韓妝保養 → 藥局醫美
-    if (parsed.config && parsed.config.rates && parsed.config.rates['韓妝保養'] !== undefined) {
-      parsed.config.rates['藥局醫美'] = parsed.config.rates['韓妝保養'];
-      delete parsed.config.rates['韓妝保養'];
-    }
-    // migrate old Olive Young rate if still 25
-    if (parsed.config && parsed.config.rates && parsed.config.rates['Olive Young'] === 25) {
-      parsed.config.rates['Olive Young'] = 45;
-    }
-    // add 專櫃精品 if missing
-    if (parsed.config && parsed.config.rates && parsed.config.rates['專櫃精品'] === undefined) {
-      parsed.config.rates['專櫃精品'] = 12;
-    }
-    state = parsed;
-  }
-  // 固定使用目前部署的 Apps Script URL，避免瀏覽器 localStorage 留到舊網址
-  state.config.scriptUrl = DEFAULT_SCRIPT_URL;
-  save();
-
-  // 確保 scriptUrl 已設定
-  if (!state.config.scriptUrl) {
-    state.config.scriptUrl = DEFAULT_SCRIPT_URL;
-    save();
-  }
-  loadConfigUI();
-  renderProgress();
-  renderQuoteList();
-  renderPurchase();
-  document.getElementById('rate').value = state.config.rate;
-  document.getElementById('daisoRate').value = state.config.rate;
-  document.getElementById('wsRate').value = state.config.rate;
-loadFromSheet();
+const CAT_LABEL = {
+  lunch: '🍱 午餐代墊',
+  shipping: '📦 廠商運費',
+  boss_treat: '🎁 老闆請客',
+  reimbursement: '🧾 請款',
+  other_expense: '📌 其他支出',
+  lunch_return: '🙋 午餐返還',
+  sales_buy: '💼 業代購買',
+  staff_buy: '👤 同仁購買',
+  pharmacist_income: '💊 郭藥師入帳',
+  other_inc: '📋 其他收入'
 };
 
-function save() { localStorage.setItem('krProxy', JSON.stringify(state)); }
-async function loadFromSheet() {
-  const url = state.config.scriptUrl || DEFAULT_SCRIPT_URL;
-  if (!url) return;
+const DEFAULT_SETTINGS = {
+  initialBalance: 4147,
+  sheetUrl: 'https://script.google.com/macros/s/AKfycbw6ZQwcoXd0kkrUlz3VGNfG4B4t3dZuhoOC3j9DFUKeUkqVR2CcrWY2iZMbsIDyGjAS/exec',
+  autoSyncEnabled: true
+};
 
+let settings = normalizeSettings(JSON.parse(localStorage.getItem('pf_settings') || 'null'));
+let persons = loadPersons();
+let transactions = normalizeTransactions(JSON.parse(localStorage.getItem('pf_txs') || '[]'));
+let currentType = 'expense';
+let selectedPax = new Set();
+let isPersonEditorOpen = false;
+let histFilter = 'all';
+let debtRows = [];
+let modalCb = null;
+let syncSeq = 0;
+let lastCloudSyncAt = '';
+let isLoadingCloud = false;
+
+function normalizePersonName(name) {
+  const value = String(name || '').trim();
+  return PERSON_NAME_ALIASES[value] || value;
+}
+
+function normalizePersons(raw) {
+  const base = Array.isArray(raw) ? raw : DEFAULT_PERSONS;
+  const seen = new Set();
+  return base
+    .map(normalizePersonName)
+    .filter(Boolean)
+    .filter(name => {
+      if (seen.has(name)) return false;
+      seen.add(name);
+      return true;
+    });
+}
+
+function loadPersons() {
+  let raw = null;
   try {
-    const res = await fetch(url + '?action=listQuotes&ts=' + Date.now());
-    const json = await res.json();
+    raw = JSON.parse(localStorage.getItem(PERSON_STORAGE_KEY) || 'null');
+  } catch (err) {
+    raw = null;
+  }
+  return applyPersonMigrations(normalizePersons(raw));
+}
 
-    if (!json.ok || !Array.isArray(json.data)) {
-      console.log('Load from Sheet skipped', json);
+// 人員名單存在各裝置的 localStorage，光改 DEFAULT_PERSONS 不會影響已經用過的裝置。
+// 用版本號把這一版新增的人員補上，只補一次，不會把手動刪掉的人一直加回來。
+function applyPersonMigrations(list) {
+  if (localStorage.getItem(PERSON_VERSION_KEY) === String(PERSON_LIST_VERSION)) return list;
+  REQUIRED_PERSONS.map(normalizePersonName).forEach(name => {
+    if (!name || list.includes(name)) return;
+    const tailIndex = list.indexOf('其他');
+    if (tailIndex === -1) list.push(name);
+    else list.splice(tailIndex, 0, name);
+  });
+  localStorage.setItem(PERSON_VERSION_KEY, String(PERSON_LIST_VERSION));
+  return list;
+}
+
+function persistPersons() {
+  localStorage.setItem(PERSON_STORAGE_KEY, JSON.stringify(persons));
+}
+
+function escapeHtml(value) {
+  return String(value || '').replace(/[&<>"']/g, ch => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[ch]));
+}
+
+function replacePersonName(oldName, newName) {
+  const from = normalizePersonName(oldName);
+  const to = normalizePersonName(newName);
+  const changedTxs = [];
+  transactions.forEach(tx => {
+    let changed = false;
+    if (normalizePersonName(tx.person) === from) {
+      tx.person = to;
+      changed = true;
+    }
+    if (Array.isArray(tx.lunchDetails)) {
+      tx.lunchDetails.forEach(detail => {
+        if (normalizePersonName(detail.person) === from) {
+          detail.person = to;
+          changed = true;
+        }
+      });
+    }
+    if (changed) changedTxs.push(tx);
+  });
+  if (selectedPax.has(from)) {
+    selectedPax.delete(from);
+    selectedPax.add(to);
+  }
+  return changedTxs;
+}
+
+function normalizeSettings(raw) {
+  return {
+    ...DEFAULT_SETTINGS,
+    ...(raw && typeof raw === 'object' ? raw : {})
+  };
+}
+
+function normalizeTransactions(raw) {
+  if (!Array.isArray(raw)) return [];
+  return raw.map(normalizeTransaction).filter(Boolean);
+}
+
+function normalizeTransaction(tx) {
+  if (!tx || typeof tx !== 'object') return null;
+  return {
+    ...tx,
+    id: String(tx.id || createTxId()),
+    date: toDateStr(tx.date),
+    amount: Number(tx.amount || 0),
+    note: tx.note || '',
+    person: normalizePersonName(tx.person || ''),
+    lunchDetails: Array.isArray(tx.lunchDetails)
+      ? tx.lunchDetails.map(d => ({ ...d, person: normalizePersonName(d.person || '') }))
+      : [],
+    createdAt: tx.createdAt || new Date().toISOString(),
+    syncStatus: tx.syncStatus || 'synced',
+    syncError: tx.syncError || '',
+    syncedAt: tx.syncedAt || tx.createdAt || new Date().toISOString()
+  };
+}
+
+function createTxId() {
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function today() {
+  return new Date().toLocaleDateString('sv-SE');
+}
+
+// Google Sheet 回傳的日期可能是完整 Date 字串，統一轉成 YYYY-MM-DD
+function toDateStr(value) {
+  if (!value) return '';
+  const str = String(value);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
+  const d = new Date(str);
+  return Number.isNaN(d.getTime()) ? str : d.toLocaleDateString('sv-SE');
+}
+
+async function init() {
+  document.getElementById('f-date').value = today();
+  hydrateSettingsForm();
+  transactions = normalizeTransactions(transactions);
+  persistPersons();
+  persistLocalCache();
+  buildPersonGrid();
+  buildPersonSelect();
+  renderPersonEditor();
+
+  renderAll();
+  if (settings.sheetUrl) {
+    await syncFromCloud({ silent: true });
+  }
+}
+
+function hydrateSettingsForm() {
+  document.getElementById('init-bal').value = settings.initialBalance;
+  document.getElementById('sheet-url').value = settings.sheetUrl || '';
+  document.getElementById('auto-sync-enabled').checked = !!settings.autoSyncEnabled;
+}
+
+function persistLocalCache() {
+  localStorage.setItem('pf_settings', JSON.stringify(settings));
+  localStorage.setItem('pf_txs', JSON.stringify(transactions));
+}
+
+function renderAll() {
+  renderOverview();
+  renderDebt();
+  renderHistory();
+  renderSyncSummary();
+  updateHeader();
+}
+
+const TABS = ['overview', 'add', 'debt', 'history', 'settings'];
+
+function tab(t) {
+  TABS.forEach(id => {
+    document.getElementById('tab-' + id).classList.toggle('hidden', id !== t);
+  });
+  document.querySelectorAll('.nav-btn').forEach((b, i) => {
+    b.classList.toggle('active', TABS[i] === t);
+  });
+  if (t === 'debt') renderDebt();
+  if (t === 'history') renderHistory();
+  if (t === 'overview') renderOverview();
+  if (t === 'settings') renderSyncSummary();
+}
+
+function setType(t) {
+  currentType = t;
+  document.getElementById('btn-exp').className = 'type-btn' + (t === 'expense' ? ' sel-exp' : '');
+  document.getElementById('btn-inc').className = 'type-btn' + (t === 'income' ? ' sel-inc' : '');
+  document.getElementById('sec-expense').classList.toggle('hidden', t !== 'expense');
+  document.getElementById('sec-income').classList.toggle('hidden', t !== 'income');
+}
+
+function onExpCat() {
+  const v = document.getElementById('exp-cat').value;
+  document.getElementById('sec-lunch').classList.toggle('hidden', v !== 'lunch');
+  document.getElementById('sec-other-exp').classList.toggle('hidden', v === 'lunch');
+}
+
+function onIncCat() {
+  const v = document.getElementById('inc-cat').value;
+  document.getElementById('sec-inc-person').classList.toggle('hidden', v === 'other_inc' || v === 'pharmacist_income');
+}
+
+function buildPersonGrid() {
+  const grid = document.getElementById('person-grid');
+  grid.innerHTML = '';
+  selectedPax = new Set([...selectedPax].filter(p => persons.includes(p)));
+  persons.forEach(p => {
+    const d = document.createElement('div');
+    d.className = 'p-chip' + (selectedPax.has(p) ? ' sel' : '');
+    d.textContent = p;
+    d.onclick = () => togglePax(p, d);
+    grid.appendChild(d);
+  });
+}
+
+function buildPersonSelect() {
+  const sel = document.getElementById('inc-person');
+  if (!sel) return;
+  const prev = sel.value;
+  sel.innerHTML = '';
+  persons.forEach(p => {
+    const o = document.createElement('option');
+    o.value = o.textContent = p;
+    sel.appendChild(o);
+  });
+  if (persons.includes(prev)) sel.value = prev;
+}
+
+function togglePersonEditor() {
+  isPersonEditorOpen = !isPersonEditorOpen;
+  document.getElementById('person-editor').classList.toggle('hidden', !isPersonEditorOpen);
+  document.getElementById('person-edit-toggle').textContent = isPersonEditorOpen ? '完成' : '編輯';
+  renderPersonEditor();
+}
+
+function renderPersonEditor() {
+  const list = document.getElementById('person-edit-list');
+  if (!list) return;
+  list.innerHTML = '';
+  persons.forEach((person, index) => {
+    const row = document.createElement('div');
+    row.className = 'person-edit-row';
+    row.innerHTML = `
+      <input type="text" class="person-name-input person-existing-name" value="${escapeHtml(person)}" data-index="${index}">
+      <button type="button" class="person-icon-btn save" title="儲存修改" onclick="savePerson(${index})">✓</button>
+      <button type="button" class="person-icon-btn delete" title="刪除" onclick="deletePerson(${index})">×</button>
+    `;
+    list.appendChild(row);
+  });
+}
+
+function refreshPeopleViews() {
+  buildPersonGrid();
+  buildPersonSelect();
+  buildLunchInputs();
+  renderPersonEditor();
+  renderAll();
+}
+
+function addPerson() {
+  const input = document.getElementById('person-new-name');
+  const name = normalizePersonName(input.value);
+  if (!name) {
+    alert('請輸入人員名稱');
+    return;
+  }
+  if (persons.includes(name)) {
+    alert('此人員已存在');
+    return;
+  }
+  persons.push(name);
+  input.value = '';
+  persistPersons();
+  refreshPeopleViews();
+}
+
+async function savePerson(index) {
+  const input = document.querySelector(`.person-existing-name[data-index="${index}"]`);
+  const oldName = persons[index];
+  const newName = normalizePersonName(input ? input.value : '');
+  if (!oldName) return;
+  if (!newName) {
+    alert('人員名稱不可空白');
+    return;
+  }
+  const duplicateIndex = persons.findIndex((person, i) => i !== index && person === newName);
+  if (duplicateIndex !== -1) {
+    alert('此人員已存在');
+    return;
+  }
+  persons[index] = newName;
+  const changedTxs = replacePersonName(oldName, newName);
+  persistPersons();
+  persistLocalCache();
+  refreshPeopleViews();
+  if (changedTxs.length > 0 && shouldUseCloudMode()) {
+    try {
+      await Promise.all(changedTxs.map(tx => callSheetApi('upsertTransaction', tx)));
+      await syncFromCloud({ silent: true });
+    } catch (err) {
+      alert(`人員名稱已存到本機，但同步既有記錄到 Google Sheet 失敗：${err.message}`);
+    }
+  }
+}
+
+function deletePerson(index) {
+  const oldName = persons[index];
+  if (!oldName) return;
+  persons.splice(index, 1);
+  selectedPax.delete(oldName);
+  persistPersons();
+  refreshPeopleViews();
+}
+
+function togglePax(p, el) {
+  if (selectedPax.has(p)) {
+    selectedPax.delete(p);
+    el.classList.remove('sel');
+  } else {
+    selectedPax.add(p);
+    el.classList.add('sel');
+  }
+  buildLunchInputs();
+}
+
+function buildLunchInputs() {
+  const sec = document.getElementById('sec-lunch-amt');
+  const box = document.getElementById('lunch-inputs');
+  if (selectedPax.size === 0) {
+    sec.classList.add('hidden');
+    return;
+  }
+  sec.classList.remove('hidden');
+
+  const vals = {};
+  box.querySelectorAll('.li').forEach(inp => { vals[inp.dataset.p] = inp.value; });
+
+  box.innerHTML = '';
+  selectedPax.forEach(p => {
+    const row = document.createElement('div');
+    row.className = 'lunch-row';
+    row.innerHTML = `
+      <span class="lunch-name">${escapeHtml(p)}</span>
+      <input type="number" class="li lunch-input-field" data-p="${escapeHtml(p)}"
+             placeholder="$0" min="0" value="${vals[p] || ''}" oninput="calcLunchTotal()">`;
+    box.appendChild(row);
+  });
+  calcLunchTotal();
+}
+
+function calcLunchTotal() {
+  let allocated = 0;
+  document.querySelectorAll('.li').forEach(i => { allocated += parseFloat(i.value) || 0; });
+  const grand = parseFloat(document.getElementById('lunch-grand-total').value) || 0;
+  const diff = grand - allocated;
+  const bar = document.getElementById('balance-bar');
+  const label = document.getElementById('bal-label');
+  const diffEl = document.getElementById('bal-diff');
+
+  label.textContent = `已分配 $${Math.round(allocated).toLocaleString()} ／ 總計 $${Math.round(grand).toLocaleString()}`;
+
+  if (grand === 0) {
+    bar.className = 'balance-bar idle';
+    diffEl.className = 'bal-diff idle';
+    diffEl.textContent = '請先填總金額';
+  } else if (Math.abs(diff) < 0.01) {
+    bar.className = 'balance-bar ok';
+    diffEl.className = 'bal-diff ok';
+    diffEl.textContent = '✓ 金額吻合';
+  } else if (diff > 0) {
+    bar.className = 'balance-bar ng';
+    diffEl.className = 'bal-diff ng';
+    diffEl.textContent = `還差 $${Math.round(diff).toLocaleString()}`;
+  } else {
+    bar.className = 'balance-bar ng';
+    diffEl.className = 'bal-diff ng';
+    diffEl.textContent = `超出 $${Math.round(-diff).toLocaleString()}`;
+  }
+}
+
+// 收入找零計算：對方給的現金 - 應收金額 = 要找回去多少，只做提示不會存進記錄
+function calcChange() {
+  const due = parseFloat(document.getElementById('inc-amt').value) || 0;
+  const got = parseFloat(document.getElementById('inc-received').value) || 0;
+  const bar = document.getElementById('change-bar');
+  const label = document.getElementById('change-label');
+  const diffEl = document.getElementById('change-diff');
+
+  label.textContent = `應收 $${Math.round(due).toLocaleString()} ／ 實收 $${Math.round(got).toLocaleString()}`;
+
+  const setState = (state, text) => {
+    bar.className = 'balance-bar ' + state;
+    diffEl.className = 'bal-diff ' + state;
+    diffEl.textContent = text;
+  };
+
+  if (due <= 0) setState('idle', '請先填應收金額');
+  else if (got <= 0) setState('idle', '待填寫');
+  else if (got < due) setState('ng', `還差 $${Math.round(due - got).toLocaleString()}`);
+  else if (got === due) setState('ok', '免找零');
+  else setState('info', `找零 $${Math.round(got - due).toLocaleString()}`);
+}
+
+function resetChangeCalc() {
+  document.getElementById('inc-received').value = '';
+  calcChange();
+}
+
+function collectTransactionFromForm() {
+  const date = document.getElementById('f-date').value;
+  if (!date) {
+    throw new Error('請選擇日期');
+  }
+
+  const nowIso = new Date().toISOString();
+  const tx = {
+    id: createTxId(),
+    date,
+    createdAt: nowIso,
+    syncStatus: 'synced',
+    syncError: '',
+    syncedAt: nowIso
+  };
+
+  if (currentType === 'expense') {
+    const cat = document.getElementById('exp-cat').value;
+    tx.type = 'expense';
+    tx.category = cat;
+    tx.note = document.getElementById('exp-note').value.trim();
+
+    if (cat === 'lunch') {
+      const grand = parseFloat(document.getElementById('lunch-grand-total').value);
+      if (!grand || grand <= 0) throw new Error('請填入本餐總金額');
+      if (selectedPax.size === 0) throw new Error('請選擇用餐人員');
+
+      const details = [];
+      let allocated = 0;
+      let ok = true;
+      document.querySelectorAll('.li').forEach(inp => {
+        const amt = parseFloat(inp.value);
+        if (!amt || amt <= 0) {
+          ok = false;
+          return;
+        }
+        details.push({ person: inp.dataset.p, amount: amt });
+        allocated += amt;
+      });
+      if (!ok || details.length === 0) throw new Error('請填入每位用餐人員的金額（需大於 0）');
+      if (Math.abs(allocated - grand) >= 1) {
+        const diff = grand - allocated;
+        throw new Error(diff > 0
+          ? `各人金額加總（$${Math.round(allocated)}）還差 $${Math.round(diff)}，需等於本餐總金額 $${Math.round(grand)}`
+          : `各人金額加總（$${Math.round(allocated)}）超出 $${Math.round(-diff)}，需等於本餐總金額 $${Math.round(grand)}`);
+      }
+      tx.lunchDetails = details;
+      tx.amount = grand;
+    } else {
+      const amt = parseFloat(document.getElementById('other-exp-amt').value);
+      if (!amt || amt <= 0) throw new Error('請填入有效金額');
+      tx.amount = amt;
+      tx.lunchDetails = [];
+    }
+  } else {
+    const cat = document.getElementById('inc-cat').value;
+    const amt = parseFloat(document.getElementById('inc-amt').value);
+    if (!amt || amt <= 0) throw new Error('請填入有效金額');
+    tx.type = 'income';
+    tx.category = cat;
+    tx.amount = amt;
+    tx.note = document.getElementById('inc-note').value.trim();
+    tx.person = (cat !== 'other_inc' && cat !== 'pharmacist_income') ? document.getElementById('inc-person').value : '';
+    tx.lunchDetails = [];
+  }
+
+  return tx;
+}
+
+async function submit() {
+  try {
+    if (!shouldUseCloudMode()) {
+      alert('請先在設定頁啟用 Google Sheet 共用同步，並確認 Web App URL 正確。');
       return;
     }
-
-    state.quotes = json.data.map((item, idx) => ({
-      id: item.id || (Date.now() + idx),
-      name: item.name || '',
-      note: item.note || '',
-      qty: Number(item.qty || 0),
-      modified: !!item.modified,
-      krw: Number(item.krw || 0),
-      rate: Number(item.rate || state.config.rate || 0.023),
-      rawCost: Number(item.rawCost || item.cost || 0),
-      cost: Number(item.cost || 0),
-      service: Number(item.service || 0),
-      price: Number(item.price || 0),
-      profit: Number(item.profit || 0),
-      margin: Number(item.margin || 0),
-      shopeeProfit: Number(item.shopeeProfit || 0),
-      market: Number(item.market || 0),
-      refund: !!item.refund,
-      refundFactor: Number(item.refundFactor || 1),
-      type: item.type || 'normal',
-      cat: item.cat || '其他小物',
-      daisoLabel: item.daisoLabel || (item.cat === '韓國大創' ? '固定定價' : ''),
-      deliveryFee: Number(item.deliveryFee || 0),
-      bulky: !!item.bulky,
-      urgent: !!item.urgent
-    }));
-
-    save();
-    renderProgress();
-    renderQuoteList();
-    renderPurchase();
-  } catch(e) {
-    console.log('Load from Sheet error', e);
+    const tx = collectTransactionFromForm();
+    await callSheetApi('upsertTransaction', tx);
+    transactions.unshift(tx);
+    sortTransactions();
+    persistLocalCache();
+    resetForm();
+    renderAll();
+    await syncFromCloud({ silent: true });
+    alert('✅ 已新增，所有裝置重新開啟或重新整理後都會看到同一份資料。');
+  } catch (err) {
+    alert(err.message || String(err));
   }
 }
-// ── PAGE SWITCH ──
-function switchPage(p, btn) {
-  document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
-  document.getElementById('page-' + p).classList.add('active');
-  btn.classList.add('active');
-  if (p === 'purchase') renderPurchase();
+
+function resetForm() {
+  selectedPax.clear();
+  buildPersonGrid();
+  document.getElementById('sec-lunch-amt').classList.add('hidden');
+  document.getElementById('lunch-inputs').innerHTML = '';
+  document.getElementById('lunch-grand-total').value = '';
+  document.getElementById('balance-bar').className = 'balance-bar idle';
+  document.getElementById('bal-label').textContent = '已分配 $0 ／ 總計 $0';
+  document.getElementById('bal-diff').className = 'bal-diff idle';
+  document.getElementById('bal-diff').textContent = '待填寫';
+  document.getElementById('exp-note').value = '';
+  document.getElementById('inc-amt').value = '';
+  document.getElementById('inc-note').value = '';
+  resetChangeCalc();
+  document.getElementById('other-exp-amt').value = '';
+  document.getElementById('exp-cat').value = 'lunch';
+  document.getElementById('inc-cat').value = 'lunch_return';
+  document.getElementById('f-date').value = today();
+  onExpCat();
+  onIncCat();
 }
 
-// ── CAT SELECT ──
-function selectCat(el) {
-  document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('selected'));
-  el.classList.add('selected');
-  state.selectedCat = el.dataset.cat;
-
-  const cat = state.selectedCat;
-  const isNormal = (cat !== '韓國大創' && cat !== '批發');
-  document.getElementById('normalFields').style.display = isNormal ? 'block' : 'none';
-  document.getElementById('daisoFields').style.display = cat === '韓國大創' ? 'block' : 'none';
-  document.getElementById('wholesaleFields').style.display = cat === '批發' ? 'block' : 'none';
-
-  // 帶入品類預設加成%
-  if (isNormal) {
-    const defaultRate = state.config.rates[cat] || 35;
-    document.getElementById('customRate').value = defaultRate;
-    document.getElementById('customRateNote').textContent = `品類預設 ${defaultRate}%`;
-  }
-
-  hideResult();
-  resetResult();
-}
-
-// ── DAISO MODE ──
-function switchDaisoMode(mode, btn) {
-  state.daisoMode = mode;
-  document.querySelectorAll('.daiso-tab').forEach(t => t.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('daisoPreset').style.display = mode === 'preset' ? 'block' : 'none';
-  document.getElementById('daisoManual').style.display = mode === 'manual' ? 'block' : 'none';
-  if (mode === 'manual') {
-    document.getElementById('daisoRate').value = state.config.rate;
-    document.getElementById('daisoCustomRate').value = 30;
-  }
-  state.selectedDaiso = null;
-  document.querySelectorAll('.daiso-btn').forEach(b => b.classList.remove('selected'));
-  hideResult();
-}
-
-function selectDaiso(el) {
-  document.querySelectorAll('.daiso-btn').forEach(b => b.classList.remove('selected'));
-  el.classList.add('selected');
-  state.selectedDaiso = {
-    krw: parseInt(el.dataset.krw),
-    price: parseInt(el.dataset.price)
-  };
-  calcDaisoPreset();
-}
-
-// ── TOGGLE ──
-function toggleSwitch(id) { document.getElementById(id).classList.toggle('on'); }
-function isOn(id) { return document.getElementById(id).classList.contains('on'); }
-
-// ── REFUND TOGGLE HANDLERS ──
-function onRefundToggle() {
-  const on = isOn('toggleRefund');
-  document.getElementById('refundFactorWrap').style.display = on ? 'block' : 'none';
-  if (!on) document.getElementById('rRefundRow').style.display = 'none';
-  calc();
-}
-
-function onDaisoRefundToggle() {
-  const on = isOn('toggleDaisoRefund');
-  document.getElementById('daisoRefundFactorWrap').style.display = on ? 'block' : 'none';
-  if (!on) document.getElementById('rRefundRow').style.display = 'none';
-  calcDaiso();
-}
-
-// ── HELPERS ──
-function roundUp5(n) { return Math.ceil(n / 5) * 5; }
-function fmtNum(n) { return Math.round(n).toLocaleString('zh-TW'); }
-function fmtNT(n) { return 'NT$' + fmtNum(n); }
-function fmtKRW(n) { return '₩' + fmtNum(n); }
-
-function hideResult() {
-  document.getElementById('resultEmpty').style.display = 'block';
-  document.getElementById('resultContent').style.display = 'none';
-}
-function resetResult() { window._tmpCalc = null; }
-
-function showResultContent() {
-  document.getElementById('resultEmpty').style.display = 'none';
-  document.getElementById('resultContent').style.display = 'block';
-}
-
-function renderShopee(price, cost, deliveryFee) {
-  const shopeeFee = price * 0.145;
-  const shopeeNet = price - shopeeFee;
-  const shopeeProfit = shopeeNet - cost - deliveryFee;
-  document.getElementById('rShopeeFee').textContent = fmtNT(shopeeFee);
-  document.getElementById('rShopeeNet').textContent = fmtNT(shopeeNet);
-  const spEl = document.getElementById('rShopeeProfit');
-  spEl.textContent = fmtNT(shopeeProfit);
-  spEl.className = 'val ' + (shopeeProfit > 0 ? 'positive' : 'negative');
-  const vEl = document.getElementById('rShopeeVerdict');
-  if (shopeeProfit > 0) {
-    vEl.className = 'shopee-verdict ok';
-    vEl.innerHTML = `✅ 蝦皮可售，毛利 ${fmtNT(shopeeProfit)}`;
-  } else if (shopeeProfit > -200) {
-    vEl.className = 'shopee-verdict warn';
-    vEl.innerHTML = `⚠️ 毛利偏低，建議調高售價至 ${fmtNT(roundUp5(price + 100))}`;
-  } else {
-    vEl.className = 'shopee-verdict bad';
-    vEl.innerHTML = `❌ 蝦皮販售虧損 ${fmtNT(Math.abs(shopeeProfit))}，不建議上架`;
-  }
-  return { shopeeFee, shopeeNet, shopeeProfit };
-}
-
-// ── CALC: 一般品類 ──
-function calc() {
-  const krw = parseFloat(document.getElementById('krwPrice').value) || 0;
-  const rate = parseFloat(document.getElementById('rate').value) || state.config.rate;
-  const cat = state.selectedCat;
-  if (cat === '韓國大創' || cat === '批發') return;
-  if (krw <= 0 || !cat) { hideResult(); return; }
-
-  const ship = state.config.ship;
-  const weight = parseFloat(document.getElementById('weight').value) || 0;
-  const bulky = isOn('toggleBulky');
-  const urgent = isOn('toggleUrgent');
-  const refund = isOn('toggleRefund');
-  document.getElementById('weightRow').style.display = ship === 'intl' ? 'block' : 'none';
-
-  const customRateVal = parseFloat(document.getElementById('customRate').value);
-  const markup = (isNaN(customRateVal) ? (state.config.rates[cat] || 35) : customRateVal) / 100;
-
-  const rawCost = krw * rate;
-  const refundFactor = refund ? (parseFloat(document.getElementById('refundFactor').value) || 0.92) : 1;
-  const cost = rawCost * refundFactor;   // 所有後續計算基於退稅後成本
-
-  // 退稅結果列
-  if (refund) {
-    document.getElementById('rRefundRow').style.display = '';
-    document.getElementById('rRefundCost').textContent = fmtNT(cost);
-    const saving = rawCost - cost;
-    document.getElementById('rRefundSaving').textContent = `退稅省了 NT$${fmtNum(saving)}（原始 ${fmtNT(rawCost)}）`;
-  } else {
-    document.getElementById('rRefundRow').style.display = 'none';
-  }
-
-  const service = cost * markup;
-  const bulkyFee = bulky ? state.config.bulky : 0;
-  const deliveryFee = ship === 'intl' ? weight * 110 : 0;
-  let subtotal = cost + service + bulkyFee + deliveryFee;
-  const urgentFee = urgent ? subtotal * 0.1 : 0;
-  subtotal += urgentFee;
-  const price = roundUp5(subtotal);
-  const profit = price - cost - deliveryFee;
-  const margin = price > 0 ? (profit / price * 100) : 0;
-
-  document.getElementById('rCostLabel').textContent = refund ? '原始台幣成本' : '台幣成本';
-  document.getElementById('rCost').textContent = fmtNT(rawCost);
-  document.getElementById('rService').textContent = fmtNT(service);
-  document.getElementById('rServiceRow').style.display = '';
-  document.getElementById('rPrice').textContent = fmtNT(price);
-  const profEl = document.getElementById('rProfit');
-  profEl.textContent = fmtNT(profit);
-  profEl.className = 'val ' + (profit > 0 ? 'positive' : 'negative');
-  document.getElementById('rMargin').textContent = margin.toFixed(1) + '%';
-  document.getElementById('rMarketTag').style.display = 'none';
-
-  let extras = [];
-  if (bulky) extras.push(`空間費 NT$${state.config.bulky}`);
-  if (urgent) extras.push(`急件費 NT$${fmtNum(urgentFee)}`);
-  if (deliveryFee > 0) extras.push(`配送費 NT$${fmtNum(deliveryFee)}`);
-  document.getElementById('rExtras').innerHTML = extras.length ? extras.join('　·　') : '';
-
-  const shopeeData = renderShopee(price, cost, deliveryFee);
-  showResultContent();
-
-  window._tmpCalc = {
-    krw, rate, cat, rawCost, cost, service, price, profit, margin,
-    refund, refundFactor,
-    ...shopeeData, deliveryFee, bulky, urgent, bulkyFee, urgentFee,
-    type: 'normal', markup: markup * 100
-  };
-}
-
-// ── CALC: 大創 preset ──
-function calcDaisoPreset() {
-  if (!state.selectedDaiso) return;
-  const { krw, price } = state.selectedDaiso;
-  const rate = state.config.rate;
-  const rawCost = krw * rate;
-  const urgent = isOn('toggleDaisoUrgent');
-  const refund = isOn('toggleDaisoRefund');
-  const refundFactor = refund ? (parseFloat(document.getElementById('daisoRefundFactor').value) || 0.92) : 1;
-
-  // 選區間模式：售價固定，僅以退稅後成本更新毛利
-  const cost = rawCost * refundFactor;
-  const finalPrice = urgent ? roundUp5(price * 1.1) : price;
-  const profit = finalPrice - cost;
-  const margin = finalPrice > 0 ? (profit / finalPrice * 100) : 0;
-
-  document.getElementById('rCostLabel').textContent = refund ? '原始台幣成本' : '台幣成本';
-  document.getElementById('rCost').textContent = fmtNT(rawCost);
-
-  if (refund) {
-    document.getElementById('rRefundRow').style.display = '';
-    document.getElementById('rRefundCost').textContent = fmtNT(cost);
-    const saving = rawCost - cost;
-    document.getElementById('rRefundSaving').textContent = `退稅省了 NT$${fmtNum(saving)}（售價固定，僅更新毛利）`;
-  } else {
-    document.getElementById('rRefundRow').style.display = 'none';
-  }
-
-  document.getElementById('rService').textContent = '固定定價';
-  document.getElementById('rServiceRow').style.display = '';
-  document.getElementById('rPrice').textContent = fmtNT(finalPrice);
-  document.getElementById('rProfit').textContent = fmtNT(profit);
-  document.getElementById('rMargin').textContent = margin.toFixed(1) + '%';
-  document.getElementById('rExtras').innerHTML = urgent ? `急件費 NT$${fmtNum(finalPrice - price)}` : '';
-  document.getElementById('rMarketTag').style.display = 'none';
-
-  const shopeeData = renderShopee(finalPrice, cost, 0);
-  showResultContent();
-
-  window._tmpCalc = {
-    krw, rate, cat: '韓國大創', rawCost, cost, service: finalPrice - cost,
-    price: finalPrice, profit, margin, refund, refundFactor,
-    ...shopeeData, deliveryFee: 0, urgent, type: 'daiso', daisoLabel: '固定定價'
-  };
-}
-
-// ── CALC: 大創 manual ──
-function calcDaiso() {
-  if (state.daisoMode === 'preset') { calcDaisoPreset(); return; }
-  const krw = parseFloat(document.getElementById('daisoKrw').value) || 0;
-  const rate = parseFloat(document.getElementById('daisoRate').value) || state.config.rate;
-  const customR = parseFloat(document.getElementById('daisoCustomRate').value) || 30;
-  if (krw <= 0) { hideResult(); return; }
-
-  const refund = isOn('toggleDaisoRefund');
-  const refundFactor = refund ? (parseFloat(document.getElementById('daisoRefundFactor').value) || 0.92) : 1;
-  const rawCost = krw * rate;
-  const cost = rawCost * refundFactor;
-
-  if (refund) {
-    document.getElementById('rRefundRow').style.display = '';
-    document.getElementById('rRefundCost').textContent = fmtNT(cost);
-    const saving = rawCost - cost;
-    document.getElementById('rRefundSaving').textContent = `退稅省了 NT$${fmtNum(saving)}（原始 ${fmtNT(rawCost)}）`;
-  } else {
-    document.getElementById('rRefundRow').style.display = 'none';
-  }
-
-  const service = cost * (customR / 100);
-  const urgent = isOn('toggleDaisoUrgent');
-  let subtotal = cost + service;
-  const urgentFee = urgent ? subtotal * 0.1 : 0;
-  subtotal += urgentFee;
-  const price = roundUp5(subtotal);
-  const profit = price - cost;
-  const margin = price > 0 ? (profit / price * 100) : 0;
-
-  document.getElementById('rCostLabel').textContent = refund ? '原始台幣成本' : '台幣成本';
-  document.getElementById('rCost').textContent = fmtNT(rawCost);
-  document.getElementById('rService').textContent = fmtNT(service);
-  document.getElementById('rServiceRow').style.display = '';
-  document.getElementById('rPrice').textContent = fmtNT(price);
-  document.getElementById('rProfit').textContent = fmtNT(profit);
-  document.getElementById('rMargin').textContent = margin.toFixed(1) + '%';
-  document.getElementById('rExtras').innerHTML = urgent ? `急件費 NT$${fmtNum(urgentFee)}` : '';
-  document.getElementById('rMarketTag').style.display = 'none';
-
-  const shopeeData = renderShopee(price, cost, 0);
-  showResultContent();
-
-  window._tmpCalc = {
-    krw, rate, cat: '韓國大創', rawCost, cost, service, price, profit, margin,
-    refund, refundFactor,
-    ...shopeeData, deliveryFee: 0, urgent, type: 'daiso', daisoLabel: '自訂金額'
-  };
-}
-
-// ── CALC: 批發（韓元進貨，不套用退稅） ──
-function calcWholesale() {
-  const wsKrw = parseFloat(document.getElementById('wsKrw').value) || 0;
-  const wsRateVal = parseFloat(document.getElementById('wsRate').value) || state.config.rate;
-  const cost = wsKrw > 0 ? wsKrw * wsRateVal : 0;
-
-  // 顯示換算後台幣成本
-  document.getElementById('wsComputedCost').textContent = wsKrw > 0 ? fmtNT(cost) : '—';
-
-  const market = parseFloat(document.getElementById('wsMarket').value) || 0;
-  const price = parseFloat(document.getElementById('wsPrice').value) || 0;
-  if (wsKrw <= 0 || price <= 0) { hideResult(); return; }
-
-  const profit = price - cost;
-  const margin = price > 0 ? (profit / price * 100) : 0;
-
-  document.getElementById('rRefundRow').style.display = 'none';
-  document.getElementById('rCostLabel').textContent = '進貨成本（₩換算）';
-  document.getElementById('rCost').textContent = fmtNT(cost);
-  document.getElementById('rServiceRow').style.display = 'none';
-  document.getElementById('rPrice').textContent = fmtNT(price);
-  document.getElementById('rProfit').textContent = fmtNT(profit);
-  const profEl = document.getElementById('rProfit');
-  profEl.className = 'val ' + (profit > 0 ? 'positive' : 'negative');
-  document.getElementById('rMargin').textContent = margin.toFixed(1) + '%';
-  document.getElementById('rExtras').innerHTML = `₩${fmtNum(wsKrw)} × ${wsRateVal} = ${fmtNT(cost)}`;
-
-  // 市價對比
-  const mtEl = document.getElementById('rMarketTag');
-  mtEl.style.display = 'block';
-  if (market > 0) {
-    if (price < market) {
-      const saving = market - price;
-      const savingPct = ((saving / market) * 100).toFixed(0);
-      mtEl.innerHTML = `<div class="ws-market-tag ok">✅ 低於市價 ${fmtNT(saving)}（省 ${savingPct}%），具競爭力</div>`;
-    } else {
-      mtEl.innerHTML = `<div class="ws-market-tag bad">❌ 售價高於或等於市價，不建議上架</div>`;
-    }
-  } else {
-    mtEl.innerHTML = '';
-  }
-
-  const shopeeData = renderShopee(price, cost, 0);
-  showResultContent();
-
-  window._tmpCalc = {
-    krw: wsKrw, rate: wsRateVal, cat: '批發', rawCost: cost, cost, service: 0,
-    price, profit, margin, market, ...shopeeData, deliveryFee: 0,
-    type: 'wholesale'
-  };
-}
-
-// ── SUBMIT ──
-function submitQuote() {
-  if (!window._tmpCalc) { alert('請先輸入商品資訊並選擇品類'); return; }
-  const name = document.getElementById('itemName').value.trim();
-  if (!name) { alert('請輸入商品名稱'); return; }
-  if (window._tmpCalc.type === 'wholesale' && window._tmpCalc.price >= (window._tmpCalc.market || Infinity) && window._tmpCalc.market > 0) {
-    if (!confirm('售價高於市價，確定要加入？')) return;
-  }
-
-  const item = {
-    id: Date.now(),
-    name,
-    note: document.getElementById('itemNote').value,
-    qty: 0,
-    modified: false,
-    ...window._tmpCalc
-  };
-  state.quotes.push(item);
-  save();
-  renderQuoteList();
-  renderProgress();
-  renderPurchase();
-  clearForm();
-  syncItem(item);
-}
-
-function clearForm() {
-  document.getElementById('itemName').value = '';
-  document.getElementById('krwPrice').value = '';
-  document.getElementById('itemNote').value = '';
-  document.getElementById('weight').value = '';
-  document.getElementById('wsKrw').value = '';
-  document.getElementById('wsMarket').value = '';
-  document.getElementById('wsPrice').value = '';
-  document.getElementById('wsComputedCost').textContent = '—';
-  document.getElementById('daisoKrw').value = '';
-  document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('selected'));
-  document.querySelectorAll('.daiso-btn').forEach(b => b.classList.remove('selected'));
-  state.selectedCat = '';
-  state.selectedDaiso = null;
-  ['toggleBulky','toggleUrgent','toggleDaisoUrgent','toggleRefund','toggleDaisoRefund'].forEach(id => {
-    if (isOn(id)) toggleSwitch(id);
+function sortTransactions() {
+  transactions.sort((a, b) => {
+    const aTime = new Date(a.createdAt || a.date || 0).getTime();
+    const bTime = new Date(b.createdAt || b.date || 0).getTime();
+    return bTime - aTime;
   });
-  document.getElementById('refundFactorWrap').style.display = 'none';
-  document.getElementById('daisoRefundFactorWrap').style.display = 'none';
-  document.getElementById('rRefundRow').style.display = 'none';
-  document.getElementById('normalFields').style.display = 'block';
-  document.getElementById('daisoFields').style.display = 'none';
-  document.getElementById('wholesaleFields').style.display = 'none';
-  hideResult();
-  window._tmpCalc = null;
 }
 
-// ── QUOTE LIST ──
-function renderQuoteList() {
-  const el = document.getElementById('quoteList');
-  const empty = document.getElementById('quoteListEmpty');
-  if (state.quotes.length === 0) { empty.style.display = 'block'; el.innerHTML = ''; return; }
-  empty.style.display = 'none';
-  el.innerHTML = state.quotes.map((q, i) => `
-    <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border-light);">
-      <div>
-        <div style="font-size:13px">${q.name}
-          ${q.type === 'wholesale' ? '<span class="badge badge-ws">批發</span>' : ''}
-          ${q.type === 'daiso' ? '<span class="badge" style="background:var(--rose-pale);color:var(--rose)">大創</span>' : ''}
-          ${q.refund ? '<span class="badge" style="background:var(--green-pale);color:var(--green)">退稅</span>' : ''}
-        </div>
-        <div style="font-size:11px; color:var(--ink-light)">${q.cat} · ${q.type === 'wholesale' ? '成本 '+fmtNT(q.cost) : fmtKRW(q.krw)}</div>
-      </div>
-      <div style="display:flex; align-items:center; gap:12px">
-        <div style="text-align:right">
-          <div style="font-family:'DM Mono',monospace; font-size:14px">${fmtNT(q.price)}</div>
-          <div style="font-size:11px; color:var(--green)">毛利 ${fmtNT(q.profit)}</div>
-        </div>
-        <button class="edit-btn" onclick="removeQuote(${i})">✕</button>
-      </div>
+function calcBalance() {
+  let bal = Number(settings.initialBalance || 0);
+  transactions.forEach(t => { bal += t.type === 'income' ? t.amount : -t.amount; });
+  return bal;
+}
+
+function calcPersonDebts() {
+  const d = {};
+  persons.forEach(p => {
+    if (NO_DEBT_PERSONS.includes(p)) return;
+    d[p] = { owed: 0, paid: 0 };
+  });
+  transactions.forEach(tx => {
+    if (tx.type === 'expense' && tx.category === 'lunch' && tx.lunchDetails) {
+      tx.lunchDetails.forEach(ld => {
+        if (d[ld.person]) d[ld.person].owed += Number(ld.amount || 0);
+      });
+    }
+    if (tx.type === 'income' && tx.category === 'lunch_return' && tx.person) {
+      if (d[tx.person]) d[tx.person].paid += Number(tx.amount || 0);
+    }
+  });
+  return d;
+}
+
+function totalOwing() {
+  const d = calcPersonDebts();
+  return Object.values(d).reduce((s, v) => {
+    const o = v.owed - v.paid;
+    return s + (o > 0 ? o : 0);
+  }, 0);
+}
+
+function updateHeader() {
+  const b = calcBalance();
+  document.getElementById('hBalance').textContent = '餘額 $' + Math.round(b).toLocaleString();
+}
+
+function renderOverview() {
+  const bal = calcBalance();
+  const inc = transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+  const exp = transactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+  const ow = totalOwing();
+
+  document.getElementById('mainBal').textContent = '$' + Math.round(bal).toLocaleString();
+  document.getElementById('s-income').textContent = '$' + Math.round(inc).toLocaleString();
+  document.getElementById('s-expense').textContent = '$' + Math.round(exp).toLocaleString();
+  document.getElementById('s-owing').textContent = '$' + Math.round(ow).toLocaleString();
+  updateHeader();
+
+  const recent = transactions.slice(0, 5);
+  const el = document.getElementById('recent-list');
+  el.innerHTML = recent.length === 0
+    ? '<div class="empty"><div class="empty-icon">📝</div>還沒有任何記錄</div>'
+    : recent.map(t => txRow(t, false)).join('');
+}
+
+function renderDebt() {
+  const debts = calcPersonDebts();
+  const el = document.getElementById('debt-results');
+
+  const list = Object.entries(debts)
+    .map(([p, d]) => ({ person: p, owed: d.owed, paid: d.paid, out: d.owed - d.paid }))
+    .filter(e => e.owed > 0)
+    .sort((a, b) => b.out - a.out);
+
+  if (list.length === 0) {
+    el.innerHTML = '<div class="card"><div class="empty"><div class="empty-icon">🎉</div>目前沒有午餐欠款記錄</div></div>';
+    return;
+  }
+
+  const total = list.reduce((s, e) => s + (e.out > 0 ? e.out : 0), 0);
+  debtRows = list;
+
+  el.innerHTML = `
+    <div class="debt-summary">
+      <div class="debt-summary-label">所有同仁尚欠總計</div>
+      <div class="debt-summary-val">$${Math.round(total).toLocaleString()}</div>
     </div>
-  `).join('');
+    <div class="debt-list">
+  ` + list.map((e, i) => {
+    const hasDebt = e.out > 0;
+    const cls = hasDebt ? 'owes' : 'clear';
+    const amtT = hasDebt
+      ? `<div class="debt-amt owes">尚欠 $${Math.round(e.out).toLocaleString()}</div>`
+      : `<div class="debt-amt clear">已結清</div>`;
+    const btn = hasDebt
+      ? `<button class="debt-collect" onclick="collectFrom(${i})">收款</button>`
+      : '';
+    return `<div class="debt-card ${cls}">
+      <div>
+        <div class="debt-person-name">${escapeHtml(e.person)}</div>
+        <div class="debt-sub">累計 $${Math.round(e.owed).toLocaleString()} ／ 已繳 $${Math.round(e.paid).toLocaleString()}</div>
+      </div>
+      <div class="debt-right">${amtT}${btn}</div>
+    </div>`;
+  }).join('') + '</div>';
 }
 
-function removeQuote(i) {
-  state.quotes.splice(i, 1);
-  save(); renderQuoteList(); renderProgress(); renderPurchase();
-}
+// 從欠款頁一鍵收款：跳到新增頁，自動帶入人員與尚欠金額
+function collectFrom(index) {
+  const row = debtRows[index];
+  if (!row) return;
 
-// ── PROGRESS ──
-function renderProgress() {
-  const goal = state.config.trip || 0;
-  const total = state.quotes.reduce((s, q) => s + (q.service || 0), 0);
-  const pct = goal > 0 ? Math.min(100, (total / goal) * 100) : 0;
-  document.getElementById('progressFill').style.width = pct + '%';
-  document.getElementById('progressPct').textContent = pct.toFixed(0) + '%';
-  document.getElementById('progressAmounts').textContent = `NT$${fmtNum(Math.round(total))} / NT$${fmtNum(goal)}`;
-}
+  tab('add');
+  setType('income');
 
-// ── PURCHASE ──
-function renderPurchase() {
-  const normal = state.quotes.filter(q => q.type !== 'wholesale');
-  const ws = state.quotes.filter(q => q.type === 'wholesale');
-  const hasAny = state.quotes.length > 0;
+  document.getElementById('f-date').value = today();
+  document.getElementById('inc-cat').value = 'lunch_return';
+  onIncCat();
 
-  document.getElementById('purchaseEmpty').style.display = hasAny ? 'none' : 'block';
-  document.getElementById('purchaseWrap').style.display = hasAny ? 'block' : 'none';
-  document.getElementById('normalSection').style.display = normal.length > 0 ? 'block' : 'none';
-  document.getElementById('wholesaleSection').style.display = ws.length > 0 ? 'block' : 'none';
-
-  // 一般
-  document.getElementById('purchaseTbody').innerHTML = normal.map((q, i) => {
-    const realIdx = state.quotes.indexOf(q);
-    const label = q.type === 'daiso' ? q.daisoLabel || '固定定價' : fmtKRW(q.krw);
-    const costLabel = q.refund ? `${fmtNT(q.cost)}<br><span style="font-size:10px;color:var(--green)">退稅後</span>` : fmtNT(q.cost);
-    return `<tr>
-      <td>${q.name} ${q.modified ? '<span class="badge badge-modified">已修改</span>' : ''} ${q.refund ? '<span class="badge" style="background:var(--green-pale);color:var(--green)">退稅</span>' : ''}</td>
-      <td><span style="font-size:11px;color:var(--ink-light)">${q.cat}</span></td>
-      <td class="mono">${label}</td>
-      <td class="mono">${costLabel}</td>
-      <td><input class="qty-input" type="number" min="0" value="${q.qty}" onchange="setQty(${realIdx}, this.value)"></td>
-      <td class="mono" id="subKrw_${realIdx}">${q.type === 'daiso' ? '—' : fmtKRW(q.krw * q.qty)}</td>
-      <td class="mono" id="subTwd_${realIdx}">${fmtNT(q.cost * q.qty)}</td>
-      <td style="font-size:12px;color:var(--ink-light)">${q.note || '—'}</td>
-      <td><button class="edit-btn" onclick="openEdit(${realIdx})">✏️</button></td>
-    </tr>`;
-  }).join('');
-
-  // 批發
-  document.getElementById('wholesaleTbody').innerHTML = ws.map((q) => {
-    const realIdx = state.quotes.indexOf(q);
-    return `<tr>
-      <td>${q.name}</td>
-      <td class="mono">${fmtKRW(q.krw || 0)}</td>
-      <td class="mono">${fmtNT(q.cost)}</td>
-      <td class="mono">${q.market > 0 ? fmtNT(q.market) : '—'}</td>
-      <td class="mono">${fmtNT(q.price)}</td>
-      <td><input class="qty-input" type="number" min="0" value="${q.qty}" onchange="setQty(${realIdx}, this.value)"></td>
-      <td class="mono" id="subKrw_${realIdx}">${fmtNT(q.cost * q.qty)}</td>
-      <td class="mono" id="subTwd_${realIdx}">${fmtNT(q.price * q.qty)}</td>
-      <td style="font-size:12px;color:var(--ink-light)">${q.note || '—'}</td>
-      <td><button class="edit-btn" onclick="openEdit(${realIdx})">✏️</button></td>
-    </tr>`;
-  }).join('');
-
-  updatePurchaseTotals();
-}
-
-function setQty(i, v) {
-  state.quotes[i].qty = parseInt(v) || 0;
-  save();
-  const q = state.quotes[i];
-  document.getElementById('subKrw_' + i).textContent = (q.type === 'daiso' || q.type === 'wholesale') ? '—' : fmtKRW(q.krw * q.qty);
-  document.getElementById('subTwd_' + i).textContent = q.type === 'wholesale' ? fmtNT(q.price * q.qty) : fmtNT(q.cost * q.qty);
-  updatePurchaseTotals();
-}
-
-function updatePurchaseTotals() {
-  let totalKrw = 0, totalCost = 0, totalService = 0, totalSell = 0, totalProfit = 0;
-  state.quotes.forEach(q => {
-    const qty = q.qty || 0;
-    if (q.type !== 'wholesale') totalKrw += (q.krw || 0) * qty;
-    totalCost += q.cost * qty;
-    totalService += (q.service || 0) * qty;
-    totalSell += q.price * qty;
-    totalProfit += q.profit * qty;
-  });
-  document.getElementById('totalKrw').textContent = '₩ ' + fmtNum(Math.round(totalKrw));
-  document.getElementById('totalTwd').textContent = 'NT$ ' + fmtNum(Math.round(totalCost));
-  document.getElementById('sumService').textContent = fmtNT(totalService);
-  document.getElementById('sumSell').textContent = fmtNT(totalSell);
-  document.getElementById('sumProfit').textContent = fmtNT(totalProfit);
-}
-
-// ── EDIT MODAL ──
-function openEdit(i) {
-  state.editingIdx = i;
-  const q = state.quotes[i];
-  document.getElementById('editName').value = q.name;
-  document.getElementById('editNote').value = q.note || '';
-  const isWs = q.type === 'wholesale';
-  document.getElementById('editNormalFields').style.display = isWs ? 'none' : 'block';
-  document.getElementById('editWsFields').style.display = isWs ? 'block' : 'none';
-  if (!isWs) {
-    document.getElementById('editKrw').value = q.krw;
-  } else {
-    document.getElementById('editWsKrw').value = q.krw || 0;
-    document.getElementById('editWsRate').value = q.rate || state.config.rate;
-    document.getElementById('editWsMarket').value = q.market || '';
-    document.getElementById('editWsPrice').value = q.price;
+  buildPersonSelect();
+  const sel = document.getElementById('inc-person');
+  if (!persons.includes(row.person)) {
+    const opt = document.createElement('option');
+    opt.value = opt.textContent = row.person;
+    sel.appendChild(opt);
   }
-  document.getElementById('editModal').classList.add('open');
+  sel.value = row.person;
+
+  const amtEl = document.getElementById('inc-amt');
+  amtEl.value = Math.round(row.out);
+  document.getElementById('inc-note').value = '';
+  resetChangeCalc();
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  amtEl.focus();
+  amtEl.select();
 }
-function closeModal() { document.getElementById('editModal').classList.remove('open'); state.editingIdx = null; }
-function saveEdit() {
-  const i = state.editingIdx;
-  const q = state.quotes[i];
-  q.name = document.getElementById('editName').value.trim();
-  q.note = document.getElementById('editNote').value;
-  if (q.type === 'wholesale') {
-    const newKrw = parseFloat(document.getElementById('editWsKrw').value) || q.krw;
-    const newRate = parseFloat(document.getElementById('editWsRate').value) || q.rate;
-    q.krw = newKrw;
-    q.rate = newRate;
-    q.cost = newKrw * newRate;
-    q.market = parseFloat(document.getElementById('editWsMarket').value) || q.market;
-    q.price = parseFloat(document.getElementById('editWsPrice').value) || q.price;
-    q.profit = q.price - q.cost;
-    q.margin = q.price > 0 ? q.profit / q.price * 100 : 0;
-    q.modified = true;
-  } else if (q.type !== 'daiso') {
-    const newKrw = parseFloat(document.getElementById('editKrw').value) || q.krw;
-    if (newKrw !== q.krw) {
-      q.modified = true;
-      q.krw = newKrw;
-      q.rawCost = newKrw * q.rate;
-      q.cost = q.rawCost * (q.refund ? (q.refundFactor || 0.92) : 1);
-      q.service = q.cost * ((state.config.rates[q.cat] || 35) / 100);
-      const base = q.cost + q.service + (q.bulky ? state.config.bulky : 0) + q.deliveryFee;
-      const urgentFee = q.urgent ? base * 0.1 : 0;
-      q.price = roundUp5(base + urgentFee);
-      q.profit = q.price - q.cost - q.deliveryFee;
+
+function renderHistory() {
+  const el = document.getElementById('history-list');
+  let list = transactions;
+  if (histFilter === 'expense') list = transactions.filter(t => t.type === 'expense');
+  else if (histFilter === 'income') list = transactions.filter(t => t.type === 'income');
+  else if (histFilter === 'lunch') list = transactions.filter(t => t.category === 'lunch');
+  else if (histFilter === 'lunch_return') list = transactions.filter(t => t.category === 'lunch_return');
+
+  el.innerHTML = list.length === 0
+    ? '<div class="empty"><div class="empty-icon">📋</div>沒有符合的記錄</div>'
+    : list.map(t => txRow(t, true)).join('');
+}
+
+function txRow(tx, showDel) {
+  const isExp = tx.type === 'expense';
+  const sign = isExp ? '-' : '+';
+  const color = isExp ? '#e53e3e' : '#38a169';
+  const badge = isExp ? 'badge-exp' : 'badge-inc';
+  const label = CAT_LABEL[tx.category] || tx.category;
+
+  let detail = '';
+  if (tx.category === 'lunch' && tx.lunchDetails) {
+    detail = tx.lunchDetails.map(d => `<span>${escapeHtml(d.person)} $${Math.round(d.amount)}</span>`).join(' &nbsp;·&nbsp; ');
+  } else if (tx.person) {
+    detail = escapeHtml(tx.person);
+  }
+  if (tx.note) detail += (detail ? ' ｜ ' : '') + escapeHtml(tx.note);
+
+  const syncStatus = tx.syncStatus || 'synced';
+  return `<div class="tx-row">
+    <div style="flex:1;min-width:0;">
+      <div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;">
+        <span class="tx-badge ${badge}">${label}</span>
+        <span class="tx-date">${tx.date}</span>
+      </div>
+      ${detail ? `<div class="tx-detail">${detail}</div>` : ''}
+      ${syncStatus === 'synced' ? '' : `<div class="tx-sync"><span class="tx-sync-pill ${syncStatus}">尚未同步</span></div>`}
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-left:10px;flex-shrink:0;">
+      <span class="tx-amt" style="color:${color}">${sign}$${Math.round(tx.amount).toLocaleString()}</span>
+      ${showDel ? `<button class="btn-del" onclick="delTx('${tx.id}')">刪除</button>` : ''}
+    </div>
+  </div>`;
+}
+
+function setFilter(f, btn) {
+  histFilter = f;
+  document.querySelectorAll('.f-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  renderHistory();
+}
+
+async function delTx(id) {
+  showModal('確認刪除？', '此筆記錄將從所有裝置共用帳本中刪除，無法復原。', async () => {
+    try {
+      await callSheetApi('deleteTransaction', { id });
+      transactions = transactions.filter(t => t.id !== id);
+      persistLocalCache();
+      renderAll();
+      await syncFromCloud({ silent: true });
+    } catch (err) {
+      alert(`刪除失敗：${err.message}`);
     }
+  });
+}
+
+async function saveSettings() {
+  const v = parseFloat(document.getElementById('init-bal').value);
+  if (isNaN(v) || v < 0) {
+    alert('請輸入有效金額');
+    return;
   }
-  save(); closeModal(); renderPurchase(); renderQuoteList();
-}
 
-// ── CONFIG ──
-function saveConfig() {
-  state.config.trip = parseFloat(document.getElementById('cfgTrip').value) || 0;
-  state.config.days = parseInt(document.getElementById('cfgDays').value) || 5;
-  state.config.rate = parseFloat(document.getElementById('cfgRate').value) || 0.023;
-  state.config.ship = document.getElementById('cfgShip').value;
-  state.config.bulky = parseFloat(document.getElementById('cfgBulky').value) || 100;
-  state.config.scriptUrl = document.getElementById('cfgScriptUrl').value;
-  ['Olive Young','藥局醫美','韓系潮牌','專櫃精品','電器3C','食品零食','文創周邊','其他小物'].forEach(k => {
-    const el = document.getElementById('r_' + k.replace(/ /g,''));
-    if (el) state.config.rates[k] = parseFloat(el.value) || 35;
-  });
-  save(); renderProgress();
-  document.getElementById('rate').value = state.config.rate;
-  document.getElementById('daisoRate').value = state.config.rate;
-  document.getElementById('wsRate').value = state.config.rate;
-  document.getElementById('weightRow').style.display = state.config.ship === 'intl' ? 'block' : 'none';
-}
+  settings.initialBalance = v;
+  settings.sheetUrl = document.getElementById('sheet-url').value.trim();
+  settings.autoSyncEnabled = document.getElementById('auto-sync-enabled').checked;
 
-function loadConfigUI() {
-  const c = state.config;
-  document.getElementById('cfgTrip').value = c.trip || '';
-  document.getElementById('cfgDays').value = c.days || '';
-  document.getElementById('cfgRate').value = c.rate || '';
-  document.getElementById('cfgShip').value = c.ship || 'self';
-  document.getElementById('cfgBulky').value = c.bulky || 100;
-  document.getElementById('cfgScriptUrl').value = c.scriptUrl || '';
-  ['Olive Young','藥局醫美','韓系潮牌','專櫃精品','電器3C','食品零食','文創周邊','其他小物'].forEach(k => {
-    const el = document.getElementById('r_' + k.replace(/ /g,''));
-    if (el && c.rates[k] !== undefined) el.value = c.rates[k];
-  });
-  document.getElementById('rate').value = c.rate || 0.023;
-  document.getElementById('daisoRate').value = c.rate || 0.023;
-  document.getElementById('wsRate').value = c.rate || 0.023;
-}
+  if (!settings.sheetUrl) {
+    persistLocalCache();
+    renderAll();
+    alert('✅ 設定已儲存。若要共用同步，請補上 Web App URL。');
+    return;
+  }
 
-// ── GOOGLE SHEET SYNC ──
-async function syncItem(item) {
-  const url = state.config.scriptUrl;
-  if (!url) return;
   try {
-    await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({
-        action: 'addQuote',
-        data: {
-          time: new Date().toLocaleString('zh-TW'),
-          name: item.name, cat: item.cat, type: item.type || 'normal',
-          krw: item.krw || 0, rate: item.rate || 1,
-          cost: Math.round(item.cost), price: item.price,
-          service: Math.round(item.service || 0),
-          profit: Math.round(item.profit),
-          shopeeProfit: Math.round(item.shopeeProfit || 0),
-          market: item.market || 0,
-          refund: item.refund || false,
-          refundFactor: item.refundFactor || 1,
-          note: item.note || ''
-        }
-      })
+    await callSheetApi('saveSettings', {
+      settings: { initialBalance: settings.initialBalance }
     });
-  } catch(e) { console.log('Sheet sync error', e); }
-}
-
-async function syncToSheet() {
-  const url = state.config.scriptUrl;
-  if (!url) { alert('請先在設定頁填入 Apps Script Web App URL'); return; }
-  const items = state.quotes.filter(q => q.qty > 0);
-  if (items.length === 0) { alert('請先填入採買數量'); return; }
-
-  const normal = items.filter(q => q.type !== 'wholesale');
-  const ws = items.filter(q => q.type === 'wholesale');
-
-  try {
-    if (normal.length > 0) {
-      await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({
-          action: 'syncPurchase',
-          data: normal.map(q => ({
-            name: q.name, cat: q.cat, type: q.type,
-            krw: q.krw || 0, cost: Math.round(q.cost),
-            price: q.price, qty: q.qty,
-            subtotalKrw: (q.krw || 0) * q.qty,
-            subtotalTwd: Math.round(q.cost * q.qty),
-            refund: q.refund || false,
-            note: q.note || '', modified: q.modified
-          }))
-        })
-      });
-    }
-    if (ws.length > 0) {
-      await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({
-          action: 'syncWholesale',
-          data: ws.map(q => ({
-            name: q.name, krw: q.krw || 0, cost: Math.round(q.cost),
-            market: q.market || 0, price: q.price, qty: q.qty,
-            subtotalCost: Math.round(q.cost * q.qty),
-            subtotalSell: Math.round(q.price * q.qty),
-            profit: Math.round(q.profit * q.qty),
-            note: q.note || ''
-          }))
-        })
-      });
-    }
-    alert('✅ 已同步至 Google Sheet！');
-  } catch(e) { alert('同步失敗，請確認 Script URL 是否正確'); }
-}
-
-function copyScript() {
-  const script = `// Korea Proxy — Google Apps Script v2.0
-// 貼入後部署為 Web App（存取權：所有人）
-// 步驟：替換下方 SS_ID → 儲存 → 部署 → 新增部署 → 類型「網路應用程式」→ 複製 URL
-
-const SS_ID = '你的_SHEET_ID'; // ← 替換成你的 Google Sheet ID（網址列中的長字串）
-
-const CAT_CONFIG = {
-  'Olive Young': { prefix: 'OY' },
-  '藥局醫美':   { prefix: 'PH' },
-  '韓系潮牌':   { prefix: 'KF' },
-  '專櫃精品':   { prefix: 'LX' },
-  '電器3C':     { prefix: 'EC' },
-  '食品零食':   { prefix: 'FD' },
-  '文創周邊':   { prefix: 'CT' },
-  '韓國大創':   { prefix: 'DS' },
-  '其他小物':   { prefix: 'OT' }
-};
-
-const CAT_HEADERS = [
-  '貨號','時間','商品名稱','韓元售價','匯率','台幣成本','建議售價',
-  '服務費','毛利','蝦皮毛利','市價','退稅','採買數量','小計韓元','小計台幣','備註','已修改'
-];
-
-const WS_HEADERS = [
-  '貨號','時間','商品名稱','韓元進貨','台幣成本','台灣市價','販售價格',
-  '採買數量','小計成本','小計售價','總毛利','備註'
-];
-
-function doPost(e) {
-  try {
-    const payload = JSON.parse(e.postData.contents);
-    const ss = SpreadsheetApp.openById(SS_ID);
-
-    if (payload.action === 'addQuote') {
-      const d = payload.data;
-      if (d.type === 'wholesale') {
-        addWholesaleRow(ss, d.name, d.time, d.krw||0, d.cost, d.market||0, d.price, 0, 0, 0, 0, d.note||'');
-      } else {
-        const info = getCatSheet(ss, d.cat);
-        const sku = nextSku(info.sh, info.prefix);
-        info.sh.appendRow([
-          sku, d.time, d.name, d.krw||0, d.rate||0, d.cost, d.price,
-          d.service, d.profit, d.shopeeProfit||0, d.market||0,
-          d.refund ? '是' : '否', 0, 0, 0, d.note||'', ''
-        ]);
-      }
-    }
-
-    if (payload.action === 'syncPurchase') {
-      payload.data.forEach(function(d) {
-        const info = getCatSheet(ss, d.cat);
-        const row = findRowByName(info.sh, d.name);
-        if (row) {
-          info.sh.getRange(row, 13).setValue(d.qty);
-          info.sh.getRange(row, 14).setValue(d.subtotalKrw||0);
-          info.sh.getRange(row, 15).setValue(d.subtotalTwd||0);
-          info.sh.getRange(row, 17).setValue(d.modified ? '是' : '否');
-        }
-      });
-    }
-
-    if (payload.action === 'syncWholesale') {
-      payload.data.forEach(function(d) {
-        const sh = getWsSheet(ss);
-        const row = findRowByName(sh, d.name);
-        if (row) {
-          sh.getRange(row, 8).setValue(d.qty);
-          sh.getRange(row, 9).setValue(d.subtotalCost||0);
-          sh.getRange(row, 10).setValue(d.subtotalSell||0);
-          sh.getRange(row, 11).setValue(d.profit||0);
-        } else {
-          addWholesaleRow(ss, d.name, new Date().toLocaleString('zh-TW'),
-            d.krw||0, d.cost, d.market||0, d.price,
-            d.qty, d.subtotalCost||0, d.subtotalSell||0, d.profit||0, d.note||'');
-        }
-      });
-    }
-
-    refreshOverview(ss);
-
-    return ContentService.createTextOutput(JSON.stringify({ok:true}))
-      .setMimeType(ContentService.MimeType.JSON);
-  } catch(err) {
-    return ContentService.createTextOutput(JSON.stringify({ok:false, error:err.message}))
-      .setMimeType(ContentService.MimeType.JSON);
+    persistLocalCache();
+    renderAll();
+    await syncFromCloud({ silent: true });
+    alert('✅ 設定已儲存，已同步到 Google Sheet。');
+  } catch (err) {
+    persistLocalCache();
+    renderAll();
+    alert(`設定已存到本機，但同步到 Google Sheet 失敗：${err.message}`);
   }
 }
 
-function getCatSheet(ss, catName) {
-  const cfg = CAT_CONFIG[catName] || { prefix: 'OT' };
-  const name = CAT_CONFIG[catName] ? catName : '其他小物';
-  let sh = ss.getSheetByName(name);
-  if (!sh) {
-    sh = ss.insertSheet(name);
-    sh.appendRow(CAT_HEADERS);
-    sh.getRange(1, 1, 1, CAT_HEADERS.length)
-      .setFontWeight('bold').setBackground('#F5E8EB').setFontColor('#1C1818');
-    sh.setFrozenRows(1);
-    sh.setColumnWidth(1, 90);
-    sh.setColumnWidth(2, 130);
-    sh.setColumnWidth(3, 170);
-  }
-  return { sh: sh, prefix: cfg.prefix };
-}
-
-function getWsSheet(ss) {
-  let sh = ss.getSheetByName('批發');
-  if (!sh) {
-    sh = ss.insertSheet('批發');
-    sh.appendRow(WS_HEADERS);
-    sh.getRange(1, 1, 1, WS_HEADERS.length)
-      .setFontWeight('bold').setBackground('#F5EDE8').setFontColor('#1C1818');
-    sh.setFrozenRows(1);
-    sh.setColumnWidth(1, 90);
-    sh.setColumnWidth(2, 130);
-    sh.setColumnWidth(3, 170);
-  }
-  return sh;
-}
-
-function addWholesaleRow(ss, name, time, krw, cost, market, price, qty, subCost, subSell, profit, note) {
-  const sh = getWsSheet(ss);
-  const sku = nextSku(sh, 'WS');
-  sh.appendRow([sku, time, name, krw, cost, market, price, qty, subCost, subSell, profit, note]);
-}
-
-function nextSku(sh, prefix) {
-  const n = sh.getLastRow(); // header佔1行，第n行資料 → 貨號n
-  return prefix + '-' + String(n).padStart(3, '0');
-}
-
-function findRowByName(sh, name) {
-  const last = sh.getLastRow();
-  if (last < 2) return null;
-  const names = sh.getRange(2, 3, last - 1, 1).getValues();
-  for (var i = 0; i < names.length; i++) {
-    if (names[i][0] === name) return i + 2;
-  }
-  return null;
-}
-
-function refreshOverview(ss) {
-  let ov = ss.getSheetByName('總覽');
-  if (!ov) {
-    ov = ss.insertSheet('總覽', 0);
-    ov.appendRow(['品類','貨號前綴','品項數','總服務費(NT$)','總毛利(NT$)']);
-    ov.getRange(1, 1, 1, 5)
-      .setFontWeight('bold').setBackground('#1C1818').setFontColor('#FDFCFB');
-    ov.setFrozenRows(1);
-  }
-  const last = ov.getLastRow();
-  if (last > 1) ov.deleteRows(2, last - 1);
-
-  Object.keys(CAT_CONFIG).forEach(function(cat) {
-    const cfg = CAT_CONFIG[cat];
-    const sh = ss.getSheetByName(cat);
-    const rows = sh ? Math.max(0, sh.getLastRow() - 1) : 0;
-    let svc = 0, profit = 0;
-    if (rows > 0 && sh) {
-      sh.getRange(2, 8, rows, 2).getValues().forEach(function(r) {
-        svc += r[0]||0;
-        profit += r[1]||0;
-      });
+function confirmClear() {
+  showModal('清除所有資料？', '所有交易記錄將從 Google Sheet 共用帳本中清空，此操作無法復原！', async () => {
+    try {
+      await callSheetApi('clearAllTransactions', {});
+      transactions = [];
+      persistLocalCache();
+      renderAll();
+      alert('已清除所有共用資料。');
+    } catch (err) {
+      alert(`清除失敗：${err.message}`);
     }
-    ov.appendRow([cat, cfg.prefix, rows, Math.round(svc), Math.round(profit)]);
   });
-
-  const wsSh = ss.getSheetByName('批發');
-  const wsRows = wsSh ? Math.max(0, wsSh.getLastRow() - 1) : 0;
-  let wsProfit = 0;
-  if (wsRows > 0 && wsSh) {
-    wsSh.getRange(2, 11, wsRows, 1).getValues().forEach(function(r) {
-      wsProfit += r[0]||0;
-    });
-  }
-  ov.appendRow(['批發', 'WS', wsRows, 0, Math.round(wsProfit)]);
-}`;
-  navigator.clipboard.writeText(script).then(() => alert('✅ 已複製 Apps Script 腳本 v2.0！'));
 }
+
+function shouldUseCloudMode() {
+  return !!(settings.autoSyncEnabled && getSheetUrl());
+}
+
+function getSheetUrl() {
+  const input = document.getElementById('sheet-url');
+  const liveValue = input ? input.value.trim() : '';
+  return liveValue || (settings.sheetUrl || '').trim();
+}
+
+function getCloudStatusLabel() {
+  if (isLoadingCloud) return '同步中';
+  if (!shouldUseCloudMode()) return '未啟用';
+  return '已連線';
+}
+
+function renderSyncSummary() {
+  document.getElementById('sync-count-synced').textContent = String(transactions.length);
+  document.getElementById('sync-count-pending').textContent = lastCloudSyncAt ? formatShortTime(lastCloudSyncAt) : '-';
+  document.getElementById('sync-count-failed').textContent = getCloudStatusLabel();
+
+  const statusEl = document.getElementById('sync-status-text');
+  if (!settings.sheetUrl) {
+    statusEl.textContent = '尚未設定 Google Sheet 共用同步。請先部署新版 Apps Script，並把 Web App URL 貼到這裡。';
+    return;
+  }
+
+  if (!settings.autoSyncEnabled) {
+    statusEl.innerHTML = '<span class="sync-dot pending"></span>目前未啟用共用同步，頁面仍會使用本機快取。';
+    return;
+  }
+
+  if (isLoadingCloud) {
+    statusEl.innerHTML = '<span class="sync-dot pending"></span>正在從 Google Sheet 讀取最新資料...';
+    return;
+  }
+
+  statusEl.innerHTML = `<span class="sync-dot synced"></span>目前使用 Google Sheet 共用資料，已載入 ${transactions.length} 筆記錄。`;
+}
+
+function formatShortTime(iso) {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return '-';
+  return date.toLocaleString('zh-TW', {
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+}
+
+function callSheetApi(action, payload) {
+  const baseUrl = getSheetUrl();
+  if (!baseUrl) {
+    return Promise.reject(new Error('請先設定 Google Apps Script Web App URL'));
+  }
+
+  const callbackName = `__sheetSyncCallback_${Date.now()}_${++syncSeq}`;
+  return new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    const timeoutId = setTimeout(() => {
+      cleanup();
+      reject(new Error('連線逾時，請確認 Apps Script 已正確部署且網址可公開存取'));
+    }, 15000);
+
+    function cleanup() {
+      clearTimeout(timeoutId);
+      delete window[callbackName];
+      script.remove();
+    }
+
+    window[callbackName] = result => {
+      cleanup();
+      if (result && result.ok) resolve(result);
+      else reject(new Error(result && result.message ? result.message : '同步失敗'));
+    };
+
+    script.onerror = () => {
+      cleanup();
+      reject(new Error('無法載入 Apps Script，請檢查網址與部署權限'));
+    };
+
+    const url = new URL(baseUrl);
+    url.searchParams.set('callback', callbackName);
+    url.searchParams.set('action', action);
+    url.searchParams.set('payload', JSON.stringify(payload || {}));
+    script.src = url.toString();
+    document.body.appendChild(script);
+  });
+}
+
+async function testSyncConnection() {
+  try {
+    await callSheetApi('ping', {
+      source: 'office-petty-cash-shared',
+      checkedAt: new Date().toISOString()
+    });
+    alert('✅ Google Sheet 連線正常，可以開始多人共用。');
+  } catch (err) {
+    alert(`❌ 測試失敗：${err.message}`);
+  }
+}
+
+async function syncFromCloud(options = {}) {
+  if (!settings.sheetUrl) return;
+  isLoadingCloud = true;
+  renderSyncSummary();
+  try {
+    const result = await callSheetApi('getAllData', {});
+    settings = normalizeSettings({
+      ...settings,
+      ...(result.settings || {}),
+      sheetUrl: getSheetUrl(),
+      autoSyncEnabled: document.getElementById('auto-sync-enabled').checked
+    });
+    transactions = normalizeTransactions(result.transactions || []);
+    sortTransactions();
+    lastCloudSyncAt = new Date().toISOString();
+    hydrateSettingsForm();
+    persistLocalCache();
+    renderAll();
+    if (!options.silent) {
+      alert('✅ 已重新讀取 Google Sheet 最新資料。');
+    }
+  } catch (err) {
+    renderSyncSummary();
+    if (!options.silent) {
+      alert(`重新讀取失敗：${err.message}`);
+    }
+  } finally {
+    isLoadingCloud = false;
+    renderSyncSummary();
+  }
+}
+
+function showModal(title, msg, cb) {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-msg').textContent = msg;
+  document.getElementById('modal').classList.remove('hidden');
+  modalCb = cb;
+  document.getElementById('modal-ok').onclick = () => {
+    const done = modalCb;
+    closeModal();
+    if (done) done();
+  };
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.add('hidden');
+  modalCb = null;
+}
+
+init();
 </script>
 </body>
 </html>
